@@ -1,0 +1,4 @@
+### run on mac
+    cmake -S . -B build
+    cmake --build build
+    ./build/blackjack
