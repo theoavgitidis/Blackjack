@@ -1,0 +1,15 @@
+build/
+.vs/
+out/
+*.obj
+*.pdb
+*.ilk
+*.idb
+*.exe
+*.user
+*.suo
+*.tlog
+*.log
+*.cache
+*.VC.db
+cmake-build-*/
