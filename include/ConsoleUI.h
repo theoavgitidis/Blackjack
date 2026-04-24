@@ -7,7 +7,7 @@
 
 class ConsoleUI {
 public:
-    enum class PlayerAction { Hit, Stand };
+    enum class PlayerAction { Hit, Stand, DoubleDown };
 
     void showWelcome() const;
     bool promptStartGame() const;
@@ -15,6 +15,9 @@ public:
     void showHands(const Player& player, const Dealer& dealer, bool hideDealersSecondCard) const;
     void showPlayerStatus(const Player& player) const;
     void showDealerStatus(const Dealer& dealer) const;
+
+    long long promptBetCents(long long bankrollCents) const;
+    void showBankroll(long long bankrollCents) const;
 
     PlayerAction promptPlayerAction() const;
     bool promptPlayAgain() const;
@@ -25,5 +28,6 @@ public:
 private:
     static std::string readLineTrimmed();
     static std::string toLowerAscii(std::string s);
+    static std::string formatMoney(long long cents);
 };
 

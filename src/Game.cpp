@@ -13,7 +13,16 @@ void Game::run() {
 
     bool again = true;
     while (again) {
+        if (player_.bankrollCents() <= 0) {
+            ui_.showInfo("Du hast kein Guthaben mehr. Spiel beendet.");
+            break;
+        }
+
         playRound();
+        if (player_.bankrollCents() <= 0) {
+            ui_.showInfo("Du hast kein Guthaben mehr. Spiel beendet.");
+            break;
+        }
         again = ui_.promptPlayAgain();
     }
 
@@ -21,6 +30,11 @@ void Game::run() {
 }
 
 void Game::playRound() {
+    ui_.showInfo("");
+    long long betCents = ui_.promptBetCents(player_.bankrollCents());
+    player_.adjustBankroll(-betCents); // Einsatz wird zu Rundenbeginn abgezogen
+    ui_.showInfo("Einsatz gesetzt: " + std::to_string(betCents / 100) + " EUR");
+
     // V1 Default: 1 Deck, vor jeder Runde frisch gemischt.
     Deck deck;
     deck.shuffle();
@@ -31,14 +45,17 @@ void Game::playRound() {
     initialDeal(deck);
     ui_.showHands(player_, dealer_, true);
 
-    if (handleInitialBlackjack()) {
+    if (handleInitialBlackjack(betCents)) {
+        ui_.showBankroll(player_.bankrollCents());
         return;
     }
 
-    playerTurn(deck);
+    playerTurn(deck, betCents);
     if (player_.isBust()) {
         ui_.showHands(player_, dealer_, false);
         ui_.showRoundResult("Du bist ueber 21. Bust! Der Dealer gewinnt.");
+        applyPayout(betCents, false, RoundOutcome::DealerWin);
+        ui_.showBankroll(player_.bankrollCents());
         return;
     }
 
@@ -57,6 +74,9 @@ void Game::playRound() {
             ui_.showRoundResult("Unentschieden (Push).");
             break;
     }
+
+    applyPayout(betCents, false, outcome);
+    ui_.showBankroll(player_.bankrollCents());
 }
 
 void Game::initialDeal(Deck& deck) {
@@ -67,7 +87,7 @@ void Game::initialDeal(Deck& deck) {
     dealer_.takeCard(deck);
 }
 
-bool Game::handleInitialBlackjack() {
+bool Game::handleInitialBlackjack(long long betCents) {
     const bool playerBJ = player_.hasBlackjack();
     const bool dealerBJ = dealer_.hasBlackjack();
 
@@ -77,21 +97,39 @@ bool Game::handleInitialBlackjack() {
 
     if (playerBJ && dealerBJ) {
         ui_.showRoundResult("Beide haben Blackjack. Unentschieden (Push).");
+        applyPayout(betCents, true, RoundOutcome::Push);
     } else if (playerBJ) {
         ui_.showRoundResult("Blackjack! Du gewinnst sofort.");
+        applyPayout(betCents, true, RoundOutcome::PlayerWin);
     } else {
         ui_.showRoundResult("Der Dealer hat Blackjack. Du verlierst.");
+        applyPayout(betCents, false, RoundOutcome::DealerWin);
     }
     return true;
 }
 
-void Game::playerTurn(Deck& deck) {
+void Game::playerTurn(Deck& deck, long long& betCents) {
     while (true) {
         ui_.showPlayerStatus(player_);
         const auto action = ui_.promptPlayerAction();
 
         if (action == ConsoleUI::PlayerAction::Stand) {
             ui_.showInfo("Du passt.");
+            return;
+        }
+
+        if (action == ConsoleUI::PlayerAction::DoubleDown) {
+            // Double Down: Einsatz verdoppeln, genau eine Karte ziehen, dann automatisch passen.
+            if (!player_.canAfford(betCents)) {
+                ui_.showInfo("Double Down nicht moeglich: nicht genug Guthaben, um den Einsatz zu verdoppeln.");
+                continue;
+            }
+
+            player_.adjustBankroll(-betCents);
+            betCents *= 2;
+            ui_.showInfo("Double Down: Einsatz verdoppelt. Du erhaelst genau eine Karte.");
+            player_.takeCard(deck);
+            ui_.showHands(player_, dealer_, true);
             return;
         }
 
@@ -130,5 +168,31 @@ Game::RoundOutcome Game::determineOutcome() const {
     if (p > d) return RoundOutcome::PlayerWin;
     if (d > p) return RoundOutcome::DealerWin;
     return RoundOutcome::Push;
+}
+
+void Game::applyPayout(long long betCents, bool playerBlackjack, RoundOutcome outcome) {
+    // Einsatz wurde bereits abgezogen.
+    // Regeln:
+    // - Blackjack (Spieler) gewinnt: Gewinn = 1.5x Einsatz, plus Einsatz zurueck
+    // - Normaler Sieg: Gewinn = 1x Einsatz, plus Einsatz zurueck
+    // - Push: Einsatz zurueck
+    // - Niederlage: nichts (Einsatz ist weg)
+    if (outcome == RoundOutcome::Push) {
+        player_.adjustBankroll(betCents);
+        return;
+    }
+
+    if (outcome == RoundOutcome::DealerWin) {
+        return;
+    }
+
+    if (playerBlackjack) {
+        const long long payout = betCents + (betCents * 150) / 100; // 2.5x Einsatz als Auszahlung
+        player_.adjustBankroll(payout);
+        return;
+    }
+
+    const long long payout = betCents * 2; // Einsatz + 1x Gewinn
+    player_.adjustBankroll(payout);
 }
 

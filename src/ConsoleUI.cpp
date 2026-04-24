@@ -2,7 +2,9 @@
 
 #include <algorithm>
 #include <cctype>
+#include <iomanip>
 #include <iostream>
+#include <sstream>
 
 void ConsoleUI::showWelcome() const {
     std::cout << "=====================================\n";
@@ -43,14 +45,55 @@ void ConsoleUI::showDealerStatus(const Dealer& dealer) const {
               << "  (Punkte: " << dealer.score() << ")\n";
 }
 
+long long ConsoleUI::promptBetCents(long long bankrollCents) const {
+    // Einsatz wird als ganze EUR abgefragt und intern als Cent gespeichert.
+    // So bleibt die Auszahlung 1.5x (Blackjack) exakt in Cent darstellbar.
+    while (true) {
+        std::cout << "Dein Kontostand: " << formatMoney(bankrollCents) << "\n";
+        std::cout << "Einsatz in EUR waehlen (z.B. 10). Mindest 1, maximal " << (bankrollCents / 100) << ": ";
+
+        const auto in = readLineTrimmed();
+        if (in.empty()) {
+            std::cout << "Ungueltige Eingabe. Bitte eine Zahl eingeben.\n";
+            continue;
+        }
+
+        try {
+            std::size_t pos = 0;
+            const long long eur = std::stoll(in, &pos, 10);
+            if (pos != in.size()) {
+                std::cout << "Ungueltige Eingabe. Bitte nur Zahlen eingeben.\n";
+                continue;
+            }
+            if (eur <= 0) {
+                std::cout << "Der Einsatz muss mindestens 1 EUR sein.\n";
+                continue;
+            }
+            const long long betCents = eur * 100;
+            if (betCents > bankrollCents) {
+                std::cout << "Du hast nicht genug Guthaben fuer diesen Einsatz.\n";
+                continue;
+            }
+            return betCents;
+        } catch (...) {
+            std::cout << "Ungueltige Eingabe. Bitte eine gueltige Zahl eingeben.\n";
+        }
+    }
+}
+
+void ConsoleUI::showBankroll(long long bankrollCents) const {
+    std::cout << "Kontostand: " << formatMoney(bankrollCents) << "\n";
+}
+
 ConsoleUI::PlayerAction ConsoleUI::promptPlayerAction() const {
     // Struktur bewusst als Enum, damit später leicht um Aktionen wie "Double Down" erweiterbar.
     while (true) {
-        std::cout << "Aktion waehlen: (1) Karte ziehen  (2) Passen : ";
+        std::cout << "Aktion waehlen: (1) Karte ziehen  (2) Passen  (3) Double Down : ";
         const auto in = readLineTrimmed();
 
         if (in == "1") return PlayerAction::Hit;
         if (in == "2") return PlayerAction::Stand;
+        if (in == "3") return PlayerAction::DoubleDown;
 
         // Auch Text-Eingaben tolerieren (REQ-F-014).
         const auto lowered = toLowerAscii(in);
@@ -60,8 +103,11 @@ ConsoleUI::PlayerAction ConsoleUI::promptPlayerAction() const {
         if (lowered == "stand" || lowered == "passen") {
             return PlayerAction::Stand;
         }
+        if (lowered == "double" || lowered == "doubledown" || lowered == "double down") {
+            return PlayerAction::DoubleDown;
+        }
 
-        std::cout << "Ungueltige Eingabe. Bitte 1/2 oder 'ziehen'/'passen' eingeben.\n";
+        std::cout << "Ungueltige Eingabe. Bitte 1/2/3 eingeben.\n";
     }
 }
 
@@ -98,5 +144,16 @@ std::string ConsoleUI::toLowerAscii(std::string s) {
         return static_cast<char>(std::tolower(c));
     });
     return s;
+}
+
+std::string ConsoleUI::formatMoney(long long cents) {
+    const long long absCents = cents < 0 ? -cents : cents;
+    const long long eur = absCents / 100;
+    const long long rem = absCents % 100;
+
+    std::ostringstream oss;
+    if (cents < 0) oss << "-";
+    oss << eur << "." << std::setw(2) << std::setfill('0') << rem << " EUR";
+    return oss.str();
 }
 

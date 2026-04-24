@@ -15,10 +15,11 @@ private:
 
     void playRound();
     void initialDeal(Deck& deck);
-    bool handleInitialBlackjack();
-    void playerTurn(Deck& deck);
+    bool handleInitialBlackjack(long long betCents);
+    void playerTurn(Deck& deck, long long& betCents);
     void dealerTurn(Deck& deck);
     RoundOutcome determineOutcome() const;
+    void applyPayout(long long betCents, bool playerBlackjack, RoundOutcome outcome);
 
     Player player_;
     Dealer dealer_;
