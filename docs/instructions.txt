@@ -2,3 +2,8 @@
     cmake -S . -B build
     cmake --build build
     ./build/blackjack
+
+### run on windows (VS Build Tools / Visual Studio)
+    cmake -S . -B build -G "Visual Studio 17 2022"
+    cmake --build build --config Debug
+    .\build\Debug\blackjack.exe
