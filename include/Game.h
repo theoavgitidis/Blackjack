@@ -13,6 +13,7 @@ public:
 private:
     enum class RoundOutcome { PlayerWin, DealerWin, Push };
 
+    void ensureDeckReady();
     void playRound();
     void initialDeal(Deck& deck);
     bool handleInitialBlackjack(long long betCents);
@@ -24,5 +25,7 @@ private:
     Player player_;
     Dealer dealer_;
     ConsoleUI ui_;
+    Deck deck_;
+    static constexpr std::size_t reshuffleWhenAtOrBelow_ = 10;
 };
 

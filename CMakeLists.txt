@@ -19,3 +19,8 @@ add_executable(blackjack
 
 target_include_directories(blackjack PRIVATE include)
 
+# Ensure UTF-8 source/execution charset on MSVC (Windows console suit symbols)
+if (MSVC)
+    target_compile_options(blackjack PRIVATE /utf-8)
+endif()
+

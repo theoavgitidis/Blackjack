@@ -11,6 +11,10 @@ void Game::run() {
         return;
     }
 
+    // Ein Deck wird für mehrere Runden verwendet: nur einmal mischen,
+    // gezogene Karten bleiben aus dem Stapel entfernt.
+    deck_.shuffle();
+
     bool again = true;
     while (again) {
         if (player_.bankrollCents() <= 0) {
@@ -29,20 +33,28 @@ void Game::run() {
     ui_.showInfo("Danke fuers Spielen! Auf Wiedersehen.");
 }
 
+void Game::ensureDeckReady() {
+    // Sobald nur noch <= 10 Karten im Deck sind, neues Deck erzeugen und mischen.
+    if (deck_.size() <= reshuffleWhenAtOrBelow_) {
+        ui_.showInfo("\n--- Neues Deck wird gemischt ---");
+        deck_ = Deck{};
+        deck_.shuffle();
+        ui_.showInfo("Karten im Deck: " + std::to_string(deck_.size()));
+    }
+}
+
 void Game::playRound() {
     ui_.showInfo("");
+    ensureDeckReady();
+    ui_.showInfo("Karten im Deck: " + std::to_string(deck_.size()));
     long long betCents = ui_.promptBetCents(player_.bankrollCents());
     player_.adjustBankroll(-betCents); // Einsatz wird zu Rundenbeginn abgezogen
     ui_.showInfo("Einsatz gesetzt: " + std::to_string(betCents / 100) + " EUR");
 
-    // V1 Default: 1 Deck, vor jeder Runde frisch gemischt.
-    Deck deck;
-    deck.shuffle();
-
     player_.clearHand();
     dealer_.clearHand();
 
-    initialDeal(deck);
+    initialDeal(deck_);
     ui_.showHands(player_, dealer_, true);
 
     if (handleInitialBlackjack(betCents)) {
@@ -50,7 +62,7 @@ void Game::playRound() {
         return;
     }
 
-    playerTurn(deck, betCents);
+    playerTurn(deck_, betCents);
     if (player_.isBust()) {
         ui_.showHands(player_, dealer_, false);
         ui_.showRoundResult("Du bist ueber 21. Bust! Der Dealer gewinnt.");
@@ -59,7 +71,7 @@ void Game::playRound() {
         return;
     }
 
-    dealerTurn(deck);
+    dealerTurn(deck_);
     ui_.showHands(player_, dealer_, false);
 
     const auto outcome = determineOutcome();
@@ -110,7 +122,6 @@ bool Game::handleInitialBlackjack(long long betCents) {
 
 void Game::playerTurn(Deck& deck, long long& betCents) {
     while (true) {
-        ui_.showPlayerStatus(player_);
         const auto action = ui_.promptPlayerAction();
 
         if (action == ConsoleUI::PlayerAction::Stand) {

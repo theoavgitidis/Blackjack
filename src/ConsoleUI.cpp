@@ -4,7 +4,36 @@
 #include <cctype>
 #include <iomanip>
 #include <iostream>
+#include <vector>
 #include <sstream>
+
+static void printHandAscii(const Hand& hand, bool hideSecondCard) {
+    const auto& cards = hand.cards();
+    if (cards.empty()) {
+        std::cout << "(keine Karten)\n";
+        return;
+    }
+
+    std::vector<std::vector<std::string>> rendered;
+    rendered.reserve(cards.size());
+
+    for (std::size_t i = 0; i < cards.size(); ++i) {
+        if (hideSecondCard && i == 1) {
+            rendered.push_back(Card::backAsciiArt());
+        } else {
+            rendered.push_back(cards[i].toAsciiArt());
+        }
+    }
+
+    const std::size_t height = rendered.front().size();
+    for (std::size_t row = 0; row < height; ++row) {
+        for (std::size_t ci = 0; ci < rendered.size(); ++ci) {
+            if (ci > 0) std::cout << " ";
+            std::cout << rendered[ci][row];
+        }
+        std::cout << "\n";
+    }
+}
 
 void ConsoleUI::showWelcome() const {
     std::cout << "=====================================\n";
@@ -24,25 +53,26 @@ bool ConsoleUI::promptStartGame() const {
 
 void ConsoleUI::showHands(const Player& player, const Dealer& dealer, bool hideDealersSecondCard) const {
     std::cout << "\n--- Aktueller Stand ---\n";
-    std::cout << "Dealer:  " << dealer.hand().toString(hideDealersSecondCard);
-    if (!hideDealersSecondCard) {
-        std::cout << "  (Punkte: " << dealer.score() << ")";
-    }
-    std::cout << "\n";
+    std::cout << "Dealer:\n";
+    printHandAscii(dealer.hand(), hideDealersSecondCard);
+    if (!hideDealersSecondCard) std::cout << "Punkte: " << dealer.score() << "\n";
 
-    std::cout << "Spieler: " << player.hand().toString(false)
-              << "  (Punkte: " << player.score() << ")\n";
+    std::cout << "\nSpieler:\n";
+    printHandAscii(player.hand(), false);
+    std::cout << "Punkte: " << player.score() << "\n";
     std::cout << "-----------------------\n\n";
 }
 
 void ConsoleUI::showPlayerStatus(const Player& player) const {
-    std::cout << "Spieler-Hand: " << player.hand().toString(false)
-              << "  (Punkte: " << player.score() << ")\n";
+    std::cout << "Spieler:\n";
+    printHandAscii(player.hand(), false);
+    std::cout << "Punkte: " << player.score() << "\n";
 }
 
 void ConsoleUI::showDealerStatus(const Dealer& dealer) const {
-    std::cout << "Dealer-Hand:  " << dealer.hand().toString(false)
-              << "  (Punkte: " << dealer.score() << ")\n";
+    std::cout << "Dealer:\n";
+    printHandAscii(dealer.hand(), false);
+    std::cout << "Punkte: " << dealer.score() << "\n";
 }
 
 long long ConsoleUI::promptBetCents(long long bankrollCents) const {
