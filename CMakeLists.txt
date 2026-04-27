@@ -6,7 +6,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
 add_executable(blackjack
-    main.cpp
+    src/main.cpp
     src/Card.cpp
     src/Deck.cpp
     src/Hand.cpp
