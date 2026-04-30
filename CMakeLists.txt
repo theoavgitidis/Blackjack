@@ -48,6 +48,10 @@ if (BUILD_TESTING)
         tests/GameTest.cpp
     )
 
+    # MSVC encodes access specifiers into symbol names. Our headers expose some
+    # internals as public under BLACKJACK_UNIT_TEST, so the core library must be
+    # compiled with the same definition to avoid unresolved externals.
+    target_compile_definitions(blackjack_core PRIVATE BLACKJACK_UNIT_TEST)
     target_link_libraries(blackjack_tests PRIVATE blackjack_core GTest::gtest_main)
     target_compile_definitions(blackjack_tests PRIVATE BLACKJACK_UNIT_TEST)
 
