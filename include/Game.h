@@ -10,7 +10,11 @@ public:
     Game();
     void run();
 
+#ifdef BLACKJACK_UNIT_TEST
+public:
+#else
 private:
+#endif
     enum class RoundOutcome { PlayerWin, DealerWin, Push };
 
     void ensureDeckReady();
@@ -28,4 +32,3 @@ private:
     Deck deck_;
     static constexpr std::size_t reshuffleWhenAtOrBelow_ = 10;
 };
-

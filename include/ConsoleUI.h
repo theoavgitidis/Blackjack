@@ -25,9 +25,12 @@ public:
     void showRoundResult(const std::string& resultText) const;
     void showInfo(const std::string& text) const;
 
+#ifdef BLACKJACK_UNIT_TEST
+public:
+#else
 private:
+#endif
     static std::string readLineTrimmed();
     static std::string toLowerAscii(std::string s);
     static std::string formatMoney(long long cents);
 };
-
