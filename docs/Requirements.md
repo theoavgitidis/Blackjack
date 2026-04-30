@@ -24,7 +24,7 @@ Das System muss es einem Benutzer ermöglichen, **Blackjack in der Konsole gegen
 - Online-Mehrspieler
 - Netzwerkkommunikation
 - Benutzerkonten
-- Echtgeldfunktionen
+- Echtgeldfunktionen; Einsätze und Kontostand werden ausschließlich als Spielgeld behandelt
 
 ---
 
@@ -49,10 +49,10 @@ Das System muss dem Benutzer ermöglichen, eine Blackjack-Partie über die Konso
 - **Akzeptanzkriterium:** Nach Programmstart kann der Benutzer ein neues Spiel beginnen.
 
 ## REQ-F-002 – Kartendeck bereitstellen
-Das System muss für jede Partie ein gültiges Kartendeck für Blackjack bereitstellen.
+Das System muss für eine Spielsitzung ein gültiges Blackjack-Kartendeck bereitstellen und dieses über mehrere Runden verwenden. Wenn nur noch wenige Karten im Deck verbleiben, muss das System automatisch ein neues vollständiges Deck bereitstellen und mischen.
 
 - **Priorität:** Muss
-- **Akzeptanzkriterium:** Zu Beginn einer Partie steht ein vollständiges Deck mit zulässigen Kartenwerten zur Verfügung.
+- **Akzeptanzkriterium:** Zu Beginn einer Spielsitzung steht ein vollständiges Deck mit zulässigen Kartenwerten zur Verfügung. Gezogene Karten bleiben aus dem Deck entfernt, bis das System bei niedrigem Kartenbestand ein neues vollständiges Deck mischt.
 
 ## REQ-F-003 – Anfangskarten austeilen
 Das System muss zu Beginn einer Partie dem Spieler und dem Dealer die initialen Karten gemäß den festgelegten Blackjack-Regeln zuteilen.
@@ -175,24 +175,31 @@ Das System soll möglichst mit Standard-C++ und der Standardbibliothek umgesetzt
 
 ---
 
-# 6. Offene Regeldefinitionen
+# 6. Festgelegte Regeldefinitionen
 
-Diese Punkte müssen wir als Nächstes fachlich festlegen, weil daraus die finalen Anforderungen entstehen:
+Für die aktuelle Umsetzung gelten folgende Blackjack-Regeln:
 
-- Anzahl der Decks
-- Kartenwerte
-- Ass als 1 oder 11
-- Dealer zieht bis 16 und steht ab 17?
-- Umgang mit Blackjack zu Beginn
-- Unentschieden-Regel
-- „Hit“ und „Stand“ nur oder auch:
-  - Double Down
-  - Split
-  - Insurance
-  - Surrender
-- Anzahl der Spieler:
-  - ein Spieler gegen Dealer
-  - mehrere Spieler gegen Dealer
+- Es wird mit einem Standarddeck aus 52 Karten gespielt.
+- Das Deck wird zu Beginn der Spielsitzung gemischt und über mehrere Runden verwendet.
+- Wenn nur noch wenige Karten im Deck verbleiben, wird automatisch ein neues vollständiges Deck erzeugt und gemischt.
+- Zahlenkarten zählen ihren Zahlenwert.
+- Bube, Dame und König zählen jeweils 10 Punkte.
+- Ein Ass zählt zunächst 11 Punkte und wird bei Bedarf als 1 Punkt gewertet, um einen Bust zu vermeiden.
+- Spieler und Dealer erhalten zu Beginn einer Runde jeweils zwei Karten.
+- Während des Spielerzugs ist die zweite Dealerkarte verdeckt.
+- Der Spieler kann „Hit“, „Stand“ oder „Double Down“ wählen.
+- Bei „Hit“ erhält der Spieler genau eine zusätzliche Karte.
+- Bei „Stand“ beendet der Spieler seinen Zug.
+- Bei „Double Down“ wird der Einsatz mit Spielgeld verdoppelt, der Spieler erhält genau eine weitere Karte und beendet danach automatisch seinen Zug.
+- Split, Insurance und Surrender gehören nicht zur aktuellen Umsetzung.
+- Der Dealer zieht automatisch weitere Karten, solange seine Punktzahl kleiner als 17 ist.
+- Der Dealer bleibt ab einer Punktzahl von 17 stehen.
+- Überschreitet eine Hand 21 Punkte, gilt sie als Bust.
+- Hat der Spieler oder Dealer direkt mit den ersten zwei Karten Blackjack, endet die Runde sofort.
+- Haben Spieler und Dealer gleichzeitig Blackjack, endet die Runde unentschieden.
+- Bei gleicher Punktzahl nach Abschluss der Züge endet die Runde unentschieden (Push).
+- Es spielt genau ein Spieler gegen einen vom System gesteuerten Dealer.
+- Einsätze, Auszahlungen und Kontostand sind ausschließlich Spielgeld und haben keinen Echtgeldbezug.
 
 ---
 
