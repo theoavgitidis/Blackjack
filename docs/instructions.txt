@@ -1,3 +1,18 @@
+### run in github codespaces
+    install c/c++ extension
+    install cmake Tools
+    choose a compiler
+    in search bar type:
+        > CMake: Build
+        > CMake: Run Without Debugging (to run the program)
+        > CMake: Run Tests (to run all the tests)
+    for a better overview of the tests, and for the programm to be developer friendly, you can 
+    go to the cmake extension, edit the launch or debug option to run either blackjack or
+    blackjack tests. Then you can just build, then run with the play button from cmake Tools
+    under the terminal/output window.
+
+
+
 ### run on mac
     cmake -S . -B build
     cmake --build build

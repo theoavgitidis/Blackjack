@@ -5,17 +5,25 @@
       "label": "CMake: build blackjack",
       "type": "cmake",
       "command": "build",
-      "targets": ["blackjack"],
+      "targets": [
+        "blackjack"
+      ],
       "group": "build",
-      "problemMatcher": ["$msCompile"]
+      "problemMatcher": [
+        "$msCompile"
+      ]
     },
     {
       "label": "CMake: build blackjack_tests",
       "type": "cmake",
       "command": "build",
-      "targets": ["blackjack_tests"],
+      "targets": [
+        "blackjack_tests"
+      ],
       "group": "build",
-      "problemMatcher": ["$msCompile"]
+      "problemMatcher": [
+        "$msCompile"
+      ]
     },
     {
       "label": "cmake-configure (VS + Tests)",
@@ -33,22 +41,37 @@
       "options": {
         "cwd": "${workspaceFolder}"
       },
-      "problemMatcher": ["$msCompile"],
+      "problemMatcher": [
+        "$msCompile"
+      ],
       "presentation": {
         "reveal": "always",
         "panel": "shared"
+      },
+      "group": {
+        "kind": "build",
+        "isDefault": true
       }
     },
     {
       "label": "cmake-build-debug",
       "type": "shell",
-      "dependsOn": ["cmake-configure (VS + Tests)"],
+      "dependsOn": [
+        "cmake-configure (VS + Tests)"
+      ],
       "command": "cmake",
-      "args": ["--build", "build", "--config", "Debug"],
+      "args": [
+        "--build",
+        "build",
+        "--config",
+        "Debug"
+      ],
       "options": {
         "cwd": "${workspaceFolder}"
       },
-      "problemMatcher": ["$msCompile"],
+      "problemMatcher": [
+        "$msCompile"
+      ],
       "presentation": {
         "reveal": "always",
         "panel": "shared"
@@ -58,13 +81,22 @@
     {
       "label": "cmake-build-release",
       "type": "shell",
-      "dependsOn": ["cmake-configure (VS + Tests)"],
+      "dependsOn": [
+        "cmake-configure (VS + Tests)"
+      ],
       "command": "cmake",
-      "args": ["--build", "build", "--config", "Release"],
+      "args": [
+        "--build",
+        "build",
+        "--config",
+        "Release"
+      ],
       "options": {
         "cwd": "${workspaceFolder}"
       },
-      "problemMatcher": ["$msCompile"],
+      "problemMatcher": [
+        "$msCompile"
+      ],
       "presentation": {
         "reveal": "always",
         "panel": "shared"
