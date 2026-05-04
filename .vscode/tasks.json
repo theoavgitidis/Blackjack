@@ -2,7 +2,23 @@
   "version": "2.0.0",
   "tasks": [
     {
-      "label": "cmake-configure",
+      "label": "CMake: build blackjack",
+      "type": "cmake",
+      "command": "build",
+      "targets": ["blackjack"],
+      "group": "build",
+      "problemMatcher": ["$msCompile"]
+    },
+    {
+      "label": "CMake: build blackjack_tests",
+      "type": "cmake",
+      "command": "build",
+      "targets": ["blackjack_tests"],
+      "group": "build",
+      "problemMatcher": ["$msCompile"]
+    },
+    {
+      "label": "cmake-configure (VS + Tests)",
       "type": "shell",
       "command": "cmake",
       "args": [
@@ -11,8 +27,12 @@
         "-B",
         "build",
         "-G",
-        "Visual Studio 17 2022"
+        "Visual Studio 17 2022",
+        "-DBUILD_TESTING=ON"
       ],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
       "problemMatcher": ["$msCompile"],
       "presentation": {
         "reveal": "always",
@@ -22,9 +42,12 @@
     {
       "label": "cmake-build-debug",
       "type": "shell",
-      "dependsOn": ["cmake-configure"],
+      "dependsOn": ["cmake-configure (VS + Tests)"],
       "command": "cmake",
       "args": ["--build", "build", "--config", "Debug"],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
       "problemMatcher": ["$msCompile"],
       "presentation": {
         "reveal": "always",
@@ -35,9 +58,12 @@
     {
       "label": "cmake-build-release",
       "type": "shell",
-      "dependsOn": ["cmake-configure"],
+      "dependsOn": ["cmake-configure (VS + Tests)"],
       "command": "cmake",
       "args": ["--build", "build", "--config", "Release"],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
       "problemMatcher": ["$msCompile"],
       "presentation": {
         "reveal": "always",
@@ -47,4 +73,3 @@
     }
   ]
 }
-

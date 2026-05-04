@@ -1,0 +1,10 @@
+{
+  "cmake.configureSettings": {
+    "BUILD_TESTING": true
+  },
+  "cmake.debugConfig": {
+    "cwd": "${workspaceFolder}",
+    "console": "integratedTerminal",
+    "stopAtEntry": false
+  }
+}
