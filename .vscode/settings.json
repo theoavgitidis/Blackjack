@@ -1,4 +1,5 @@
 {
+  // blackjack.miDebuggerPath: GDB falls nicht in PATH (z.B. MSYS2 ucrt64 bin gdb.exe)
   "cmake.configureSettings": {
     "BUILD_TESTING": true
   },
@@ -6,5 +7,6 @@
     "cwd": "${workspaceFolder}",
     "console": "integratedTerminal",
     "stopAtEntry": false
-  }
+  },
+  "blackjack.miDebuggerPath": "gdb"
 }

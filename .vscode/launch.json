@@ -1,51 +1,88 @@
 {
-  // Play-Button: braucht C++-Extension (MSVC = cppvsdbg). Pfade build/Debug/*
-  // setzen Visual Studio-Generator voraus. Bei Ninja o. a.: unten
-  // "Blackjack — CMake Launch Target" nutzen oder in CMake Tools das Launch-Ziel waehlen.
+  // Debugger: cppdbg + GDB (in PATH), weil cppvsdbg (MSVC) in Cursor / Remote
+  // u. a. oft "not supported in this environment" meldet.
+  // Mit reinem MSVC-Build ohne MinGW: Programm starten ueber CMake Tools
+  // "Launch Target" oder Tasks "Run … (ohne Debugger)".
   "version": "0.2.0",
   "configurations": [
     {
       "name": "Blackjack (Debug)",
-      "type": "cppvsdbg",
+      "type": "cppdbg",
       "request": "launch",
       "program": "${workspaceFolder}/build/Debug/blackjack.exe",
       "args": [],
       "cwd": "${workspaceFolder}",
-      "console": "integratedTerminal",
       "stopAtEntry": false,
+      "console": "integratedTerminal",
+      "MIMode": "gdb",
+      "miDebuggerPath": "${config:blackjack.miDebuggerPath}",
+      "setupCommands": [
+        {
+          "description": "Pretty printing",
+          "text": "-enable-pretty-printing",
+          "ignoreFailures": true
+        }
+      ],
       "preLaunchTask": "CMake: build blackjack"
     },
     {
       "name": "Blackjack Tests (Debug)",
-      "type": "cppvsdbg",
+      "type": "cppdbg",
       "request": "launch",
       "program": "${workspaceFolder}/build/Debug/blackjack_tests.exe",
       "args": [],
       "cwd": "${workspaceFolder}",
-      "console": "integratedTerminal",
       "stopAtEntry": false,
+      "console": "integratedTerminal",
+      "MIMode": "gdb",
+      "miDebuggerPath": "${config:blackjack.miDebuggerPath}",
+      "setupCommands": [
+        {
+          "description": "Pretty printing",
+          "text": "-enable-pretty-printing",
+          "ignoreFailures": true
+        }
+      ],
       "preLaunchTask": "CMake: build blackjack_tests"
     },
     {
       "name": "Blackjack (Release)",
-      "type": "cppvsdbg",
+      "type": "cppdbg",
       "request": "launch",
       "program": "${workspaceFolder}/build/Release/blackjack.exe",
       "args": [],
       "cwd": "${workspaceFolder}",
-      "console": "integratedTerminal",
       "stopAtEntry": false,
+      "console": "integratedTerminal",
+      "MIMode": "gdb",
+      "miDebuggerPath": "${config:blackjack.miDebuggerPath}",
+      "setupCommands": [
+        {
+          "description": "Pretty printing",
+          "text": "-enable-pretty-printing",
+          "ignoreFailures": true
+        }
+      ],
       "preLaunchTask": "cmake-build-release"
     },
     {
       "name": "Blackjack — CMake Launch Target (Pfad aus Statusleiste)",
-      "type": "cppvsdbg",
+      "type": "cppdbg",
       "request": "launch",
       "program": "${command:cmake.launchTargetPath}",
       "args": [],
       "cwd": "${workspaceFolder}",
+      "stopAtEntry": false,
       "console": "integratedTerminal",
-      "stopAtEntry": false
+      "MIMode": "gdb",
+      "miDebuggerPath": "${config:blackjack.miDebuggerPath}",
+      "setupCommands": [
+        {
+          "description": "Pretty printing",
+          "text": "-enable-pretty-printing",
+          "ignoreFailures": true
+        }
+      ]
     }
   ]
 }

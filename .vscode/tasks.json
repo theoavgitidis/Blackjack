@@ -18,6 +18,30 @@
       "problemMatcher": ["$msCompile"]
     },
     {
+      "label": "Run blackjack (ohne Debugger, nach Build)",
+      "type": "shell",
+      "dependsOn": ["CMake: build blackjack"],
+      "dependsOrder": "sequence",
+      "command": ".\\build\\Debug\\blackjack.exe",
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": [],
+      "group": "test"
+    },
+    {
+      "label": "Run blackjack_tests (ohne Debugger, nach Build)",
+      "type": "shell",
+      "dependsOn": ["CMake: build blackjack_tests"],
+      "dependsOrder": "sequence",
+      "command": ".\\build\\Debug\\blackjack_tests.exe",
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": [],
+      "group": "test"
+    },
+    {
       "label": "cmake-configure (VS + Tests)",
       "type": "shell",
       "command": "cmake",
