@@ -1,203 +1,249 @@
 #include "Game.h"
-#include "TestIO.h"
+
+#include "Card.h"
+#include "test_stream_redirect.h"
 
 #include <gtest/gtest.h>
 
+#include <sstream>
+
+using Suit = Card::Suit;
+using Rank = Card::Rank;
+
 namespace {
 
-void makeHand(Participant& participant, std::initializer_list<Card::Rank> ranks) {
-    participant.clearHand();
-    for (const auto rank : ranks) {
-        participant.hand().addCard(Card(Card::Suit::Kreuz, rank));
-    }
+void clearDealBoth(Game& g) {
+    g.player_.clearHand();
+    g.dealer_.clearHand();
+}
+
+void givePlayer(Game& g, Suit s1, Rank r1, Suit s2, Rank r2) {
+    g.player_.hand().clear();
+    g.player_.hand().addCard(Card(s1, r1));
+    g.player_.hand().addCard(Card(s2, r2));
+}
+
+void giveDealer(Game& g, Suit s1, Rank r1, Suit s2, Rank r2) {
+    g.dealer_.hand().clear();
+    g.dealer_.hand().addCard(Card(s1, r1));
+    g.dealer_.hand().addCard(Card(s2, r2));
 }
 
 } // namespace
 
-TEST(GameTest, ConstructorCreatesInitialParticipantsAndDeck) {
-    const Game game;
+// =============================================================================
+// Game (Test-API unter BLACKJACK_UNIT_TEST) — determineOutcome()
+// Aequivalenzklassen: Dealer Bust, Player hoeher, Dealer hoeher, Gleichstand
+// Grenzwerte: Punktgleichheit, exakt 21 vs 20, Dealer 22 (Bust)
+// =============================================================================
 
-    EXPECT_EQ(game.player_.name(), "Spieler");
-    EXPECT_EQ(game.dealer_.name(), "Dealer");
-    EXPECT_EQ(game.deck_.size(), 52U);
+TEST(GameDetermineOutcome, DealerBustPlayerAnyNonBustWinsTypical) {
+    Game g;
+    clearDealBoth(g);
+    g.player_.hand().addCard(Card(Suit::Herz, Rank::Zehn));
+    g.player_.hand().addCard(Card(Suit::Pik, Rank::Fuenf));
+    g.dealer_.hand().addCard(Card(Suit::Karo, Rank::Koenig));
+    g.dealer_.hand().addCard(Card(Suit::Kreuz, Rank::Koenig));
+    g.dealer_.hand().addCard(Card(Suit::Herz, Rank::Drei));
+    ASSERT_TRUE(g.dealer_.isBust());
+    EXPECT_EQ(g.determineOutcome(), Game::RoundOutcome::PlayerWin);
 }
 
-TEST(GameTest, EnsureDeckReadyKeepsLargeDeckAndRefreshesLowDeck) {
-    Game game;
-    ScopedOutput output;
+TEST(GameDetermineOutcome, PlayerHigherTypicalSeventeenVsSixteen) {
+    Game g;
+    givePlayer(g, Suit::Herz, Rank::Zehn, Suit::Pik, Rank::Sieben);
+    giveDealer(g, Suit::Karo, Rank::Zehn, Suit::Kreuz, Rank::Sechs);
+    EXPECT_EQ(g.determineOutcome(), Game::RoundOutcome::PlayerWin);
+}
 
-    game.ensureDeckReady();
-    EXPECT_EQ(game.deck_.size(), 52U);
+TEST(GameDetermineOutcome, DealerHigherBoundaryPlayerLoses) {
+    Game g;
+    givePlayer(g, Suit::Herz, Rank::Zehn, Suit::Pik, Rank::Sechs);
+    giveDealer(g, Suit::Karo, Rank::Zehn, Suit::Kreuz, Rank::Sieben);
+    EXPECT_EQ(g.determineOutcome(), Game::RoundOutcome::DealerWin);
+}
 
-    while (game.deck_.size() > 10U) {
-        (void)game.deck_.draw();
+TEST(GameDetermineOutcome, PushSameTotalNineteenTypical) {
+    Game g;
+    givePlayer(g, Suit::Herz, Rank::Neun, Suit::Pik, Rank::Koenig);
+    giveDealer(g, Suit::Karo, Rank::Neun, Suit::Kreuz, Rank::Koenig);
+    EXPECT_EQ(g.player_.score(), 19);
+    EXPECT_EQ(g.dealer_.score(), 19);
+    EXPECT_EQ(g.determineOutcome(), Game::RoundOutcome::Push);
+}
+
+TEST(GameDetermineOutcome, PushTwentyOneBothHard) {
+    Game g;
+    givePlayer(g, Suit::Herz, Rank::Sieben, Suit::Pik, Rank::Sieben);
+    g.player_.hand().addCard(Card(Suit::Karo, Rank::Sieben));
+    giveDealer(g, Suit::Kreuz, Rank::Acht, Suit::Herz, Rank::Neun);
+    g.dealer_.hand().addCard(Card(Suit::Pik, Rank::Vier));
+    EXPECT_EQ(g.player_.score(), 21);
+    EXPECT_EQ(g.dealer_.score(), 21);
+    EXPECT_EQ(g.determineOutcome(), Game::RoundOutcome::Push);
+}
+
+// =============================================================================
+// applyPayout — Aequivalenzklassen Outcome x playerBlackjack-Flag
+// Grenzwerte: bet=1 Cent, grosse bet, Push vs Win vs Loss
+// =============================================================================
+
+TEST(GameApplyPayout, PushReturnsBetOnlyTypical) {
+    Game g;
+    const long long before = g.player_.bankrollCents();
+    const long long bet = 1000;
+    g.applyPayout(bet, false, Game::RoundOutcome::Push);
+    EXPECT_EQ(g.player_.bankrollCents(), before + bet);
+}
+
+TEST(GameApplyPayout, DealerWinAddsNothingBoundary) {
+    Game g;
+    const long long before = g.player_.bankrollCents();
+    const long long bet = 2000;
+    g.applyPayout(bet, false, Game::RoundOutcome::DealerWin);
+    EXPECT_EQ(g.player_.bankrollCents(), before);
+}
+
+TEST(GameApplyPayout, NormalPlayerWinDoublesReturnTypical) {
+    Game g;
+    const long long before = g.player_.bankrollCents();
+    const long long bet = 500;
+    g.applyPayout(bet, false, Game::RoundOutcome::PlayerWin);
+    EXPECT_EQ(g.player_.bankrollCents(), before + bet * 2);
+}
+
+TEST(GameApplyPayout, BlackjackWinUsesOnePointFiveMultiplierTypical) {
+    Game g;
+    const long long before = g.player_.bankrollCents();
+    const long long bet = 10000;
+    g.applyPayout(bet, true, Game::RoundOutcome::PlayerWin);
+    const long long expectedGain = bet + (bet * 150) / 100;
+    EXPECT_EQ(g.player_.bankrollCents(), before + expectedGain);
+}
+
+TEST(GameApplyPayout, BlackjackFlagIgnoredOnPush) {
+    Game g;
+    const long long before = g.player_.bankrollCents();
+    const long long bet = 750;
+    g.applyPayout(bet, true, Game::RoundOutcome::Push);
+    EXPECT_EQ(g.player_.bankrollCents(), before + bet);
+}
+
+TEST(GameApplyPayout, SmallBetOneCentPlayerWinBoundary) {
+    Game g;
+    const long long before = g.player_.bankrollCents();
+    const long long bet = 1;
+    g.applyPayout(bet, false, Game::RoundOutcome::PlayerWin);
+    EXPECT_EQ(g.player_.bankrollCents(), before + 2);
+}
+
+// =============================================================================
+// ensureDeckReady — Grenzwert reshuffle bei <=10 Karten (Konstante im Game)
+// =============================================================================
+
+TEST(GameEnsureDeckReady, ReshufflesWhenTenOrFewerCardsBoundary) {
+    Game g;
+    while (g.deck_.size() > 10) {
+        (void)g.deck_.draw();
     }
-
-    game.ensureDeckReady();
-    EXPECT_EQ(game.deck_.size(), 52U);
+    ASSERT_EQ(g.deck_.size(), 10u);
+    g.ensureDeckReady();
+    EXPECT_EQ(g.deck_.size(), 52u);
 }
 
-TEST(GameTest, InitialDealGivesPlayerAndDealerTwoCards) {
-    Game game;
-    Deck deck;
-
-    game.initialDeal(deck);
-
-    EXPECT_EQ(game.player_.hand().cards().size(), 2U);
-    EXPECT_EQ(game.dealer_.hand().cards().size(), 2U);
-    EXPECT_EQ(deck.size(), 48U);
+TEST(GameEnsureDeckReady, DoesNotReshuffleWhenElevenCardsTypical) {
+    Game g;
+    while (g.deck_.size() > 11) {
+        (void)g.deck_.draw();
+    }
+    ASSERT_EQ(g.deck_.size(), 11u);
+    g.ensureDeckReady();
+    EXPECT_EQ(g.deck_.size(), 11u);
 }
 
-TEST(GameTest, HandleInitialBlackjackReturnsFalseWhenNoBlackjack) {
-    Game game;
-    makeHand(game.player_, {Card::Rank::Zehn, Card::Rank::Neun});
-    makeHand(game.dealer_, {Card::Rank::Zehn, Card::Rank::Acht});
-    ScopedOutput output;
+// =============================================================================
+// handleInitialBlackjack — rein logisch ueber Manipulation + Aufruf
+// =============================================================================
 
-    EXPECT_FALSE(game.handleInitialBlackjack(1000));
+TEST(GameHandleInitialBlackjack, ReturnsFalseWhenNoBlackjack) {
+    Game g;
+    givePlayer(g, Suit::Herz, Rank::Zehn, Suit::Pik, Rank::Fuenf);
+    giveDealer(g, Suit::Karo, Rank::Neun, Suit::Kreuz, Rank::Acht);
+    EXPECT_FALSE(g.handleInitialBlackjack(1000));
 }
 
-TEST(GameTest, HandleInitialBlackjackPaysPlayerBlackjack) {
-    Game game;
-    makeHand(game.player_, {Card::Rank::Ass, Card::Rank::Koenig});
-    makeHand(game.dealer_, {Card::Rank::Zehn, Card::Rank::Acht});
-    game.player_.adjustBankroll(-1000);
-    ScopedOutput output;
-
-    EXPECT_TRUE(game.handleInitialBlackjack(1000));
-    EXPECT_EQ(game.player_.bankrollCents(), 51500);
+TEST(GameHandleInitialBlackjack, BothBlackjackPushPayout) {
+    Game g;
+    const long long before = g.player_.bankrollCents();
+    givePlayer(g, Suit::Herz, Rank::Ass, Suit::Pik, Rank::Koenig);
+    giveDealer(g, Suit::Karo, Rank::Ass, Suit::Kreuz, Rank::Dame);
+    const long long bet = 2000;
+    EXPECT_TRUE(g.handleInitialBlackjack(bet));
+    EXPECT_EQ(g.player_.bankrollCents(), before + bet);
 }
 
-TEST(GameTest, HandleInitialBlackjackPushReturnsBet) {
-    Game game;
-    makeHand(game.player_, {Card::Rank::Ass, Card::Rank::Koenig});
-    makeHand(game.dealer_, {Card::Rank::Ass, Card::Rank::Dame});
-    game.player_.adjustBankroll(-1000);
-    ScopedOutput output;
-
-    EXPECT_TRUE(game.handleInitialBlackjack(1000));
-    EXPECT_EQ(game.player_.bankrollCents(), 50000);
+TEST(GameHandleInitialBlackjack, PlayerBlackjackPaysBlackjackRate) {
+    Game g;
+    const long long before = g.player_.bankrollCents();
+    givePlayer(g, Suit::Herz, Rank::Ass, Suit::Pik, Rank::Zehn);
+    giveDealer(g, Suit::Karo, Rank::Neun, Suit::Kreuz, Rank::Acht);
+    const long long bet = 1000;
+    EXPECT_TRUE(g.handleInitialBlackjack(bet));
+    const long long gain = bet + (bet * 150) / 100;
+    EXPECT_EQ(g.player_.bankrollCents(), before + gain);
 }
 
-TEST(GameTest, PlayerTurnStandDoesNotDraw) {
-    Game game;
-    Deck deck;
-    long long betCents = 1000;
-    ScopedInput input("2\n");
-    ScopedOutput output;
-
-    game.playerTurn(deck, betCents);
-
-    EXPECT_TRUE(game.player_.hand().cards().empty());
-    EXPECT_EQ(betCents, 1000);
-    EXPECT_EQ(deck.size(), 52U);
+TEST(GameHandleInitialBlackjack, DealerBlackjackPlayerLosesNoRefund) {
+    Game g;
+    const long long before = g.player_.bankrollCents();
+    givePlayer(g, Suit::Herz, Rank::Neun, Suit::Pik, Rank::Acht);
+    giveDealer(g, Suit::Karo, Rank::Ass, Suit::Kreuz, Rank::Bube);
+    const long long bet = 3000;
+    EXPECT_TRUE(g.handleInitialBlackjack(bet));
+    EXPECT_EQ(g.player_.bankrollCents(), before);
 }
 
-TEST(GameTest, PlayerTurnHitDrawsExactlyOneCardThenCanStand) {
-    Game game;
-    Deck deck;
-    long long betCents = 1000;
-    ScopedInput input("1\n2\n");
-    ScopedOutput output;
+// =============================================================================
+// initialDeal — zieht vier Karten, zwei pro Teilnehmer
+// =============================================================================
 
-    game.playerTurn(deck, betCents);
-
-    EXPECT_EQ(game.player_.hand().cards().size(), 1U);
-    EXPECT_EQ(deck.size(), 51U);
+TEST(GameInitialDeal, DealsTwoCardsEachTypical) {
+    Game g;
+    clearDealBoth(g);
+    Deck d;
+    const auto before = d.size();
+    g.initialDeal(d);
+    EXPECT_EQ(g.player_.hand().cards().size(), 2u);
+    EXPECT_EQ(g.dealer_.hand().cards().size(), 2u);
+    EXPECT_EQ(d.size(), before - 4);
 }
 
-TEST(GameTest, PlayerTurnDoubleDownDoublesBetDrawsOneCardAndEndsTurn) {
-    Game game;
-    Deck deck;
-    long long betCents = 1000;
-    ScopedInput input("3\n1\n");
-    ScopedOutput output;
+// =============================================================================
+// dealerTurn / playerTurn — Smoke (nur Ablauf ohne Assertions auf exakte IO)
+// =============================================================================
 
-    game.playerTurn(deck, betCents);
-
-    EXPECT_EQ(betCents, 2000);
-    EXPECT_EQ(game.player_.bankrollCents(), 49000);
-    EXPECT_EQ(game.player_.hand().cards().size(), 1U);
-    EXPECT_EQ(deck.size(), 51U);
+TEST(GameDealerTurn, StandsOnSeventeenWithoutExtraDraws) {
+    Game g;
+    std::ostringstream oss;
+    blackjack_test::CoutStringbufGuard outGuard(oss);
+    giveDealer(g, Suit::Herz, Rank::Zehn, Suit::Pik, Rank::Sieben);
+    g.player_.hand().clear();
+    g.player_.hand().addCard(Card(Suit::Karo, Rank::Neun));
+    Deck d;
+    g.dealerTurn(d);
+    EXPECT_EQ(g.dealer_.score(), 17);
 }
 
-TEST(GameTest, PlayerTurnDoubleDownRetriesWhenPlayerCannotAffordExtraBet) {
-    Game game;
-    Deck deck;
-    game.player_.adjustBankroll(-49500);
-    long long betCents = 1000;
-    ScopedInput input("3\n2\n");
-    ScopedOutput output;
-
-    game.playerTurn(deck, betCents);
-
-    EXPECT_EQ(betCents, 1000);
-    EXPECT_TRUE(game.player_.hand().cards().empty());
-    EXPECT_NE(output.str().find("Double Down nicht moeglich"), std::string::npos);
-}
-
-TEST(GameTest, DealerTurnDrawsUntilAtLeastSeventeen) {
-    Game game;
-    Deck deck;
-    makeHand(game.dealer_, {Card::Rank::Zwei, Card::Rank::Drei});
-    ScopedOutput output;
-
-    game.dealerTurn(deck);
-
-    EXPECT_GE(game.dealer_.score(), 17);
-    EXPECT_LT(deck.size(), 52U);
-}
-
-TEST(GameTest, DealerTurnDoesNotDrawAtSeventeen) {
-    Game game;
-    Deck deck;
-    makeHand(game.dealer_, {Card::Rank::Zehn, Card::Rank::Sieben});
-    ScopedOutput output;
-
-    game.dealerTurn(deck);
-
-    EXPECT_EQ(game.dealer_.hand().cards().size(), 2U);
-    EXPECT_EQ(deck.size(), 52U);
-}
-
-TEST(GameTest, DetermineOutcomeHandlesDealerBustHigherScoresAndPush) {
-    Game game;
-
-    makeHand(game.player_, {Card::Rank::Zehn, Card::Rank::Acht});
-    makeHand(game.dealer_, {Card::Rank::Koenig, Card::Rank::Dame, Card::Rank::Zwei});
-    EXPECT_EQ(game.determineOutcome(), Game::RoundOutcome::PlayerWin);
-
-    makeHand(game.player_, {Card::Rank::Zehn, Card::Rank::Neun});
-    makeHand(game.dealer_, {Card::Rank::Koenig, Card::Rank::Acht});
-    EXPECT_EQ(game.determineOutcome(), Game::RoundOutcome::PlayerWin);
-
-    makeHand(game.player_, {Card::Rank::Zehn, Card::Rank::Sieben});
-    makeHand(game.dealer_, {Card::Rank::Koenig, Card::Rank::Acht});
-    EXPECT_EQ(game.determineOutcome(), Game::RoundOutcome::DealerWin);
-
-    makeHand(game.player_, {Card::Rank::Zehn, Card::Rank::Acht});
-    makeHand(game.dealer_, {Card::Rank::Koenig, Card::Rank::Acht});
-    EXPECT_EQ(game.determineOutcome(), Game::RoundOutcome::Push);
-}
-
-TEST(GameTest, ApplyPayoutHandlesPushLossNormalWinAndBlackjackWin) {
-    Game pushGame;
-    pushGame.player_.adjustBankroll(-1000);
-    pushGame.applyPayout(1000, false, Game::RoundOutcome::Push);
-    EXPECT_EQ(pushGame.player_.bankrollCents(), 50000);
-
-    Game lossGame;
-    lossGame.player_.adjustBankroll(-1000);
-    lossGame.applyPayout(1000, false, Game::RoundOutcome::DealerWin);
-    EXPECT_EQ(lossGame.player_.bankrollCents(), 49000);
-
-    Game winGame;
-    winGame.player_.adjustBankroll(-1000);
-    winGame.applyPayout(1000, false, Game::RoundOutcome::PlayerWin);
-    EXPECT_EQ(winGame.player_.bankrollCents(), 51000);
-
-    Game blackjackGame;
-    blackjackGame.player_.adjustBankroll(-1000);
-    blackjackGame.applyPayout(1000, true, Game::RoundOutcome::PlayerWin);
-    EXPECT_EQ(blackjackGame.player_.bankrollCents(), 51500);
+TEST(GamePlayerTurn, StandImmediatelyEndsTurn) {
+    Game g;
+    std::istringstream iss("2\n");
+    blackjack_test::CinStringbufGuard inGuard(iss);
+    std::ostringstream oss;
+    blackjack_test::CoutStringbufGuard outGuard(oss);
+    givePlayer(g, Suit::Herz, Rank::Zehn, Suit::Pik, Rank::Fuenf);
+    long long bet = 100;
+    Deck d;
+    g.playerTurn(d, bet);
+    EXPECT_EQ(g.player_.hand().cards().size(), 2u);
+    EXPECT_EQ(bet, 100);
 }

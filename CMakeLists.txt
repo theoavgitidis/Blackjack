@@ -43,6 +43,7 @@ if (BUILD_TESTING)
         tests/CardTest.cpp
         tests/DeckTest.cpp
         tests/HandTest.cpp
+        tests/HandEquivalenceExtendedTest.cpp
         tests/ParticipantTest.cpp
         tests/ConsoleUITest.cpp
         tests/GameTest.cpp
