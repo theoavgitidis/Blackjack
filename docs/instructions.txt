@@ -1,3 +1,18 @@
+### run in github codespaces
+    install c/c++ extension
+    install cmake Tools
+    choose a compiler
+    in search bar type:
+        > CMake: Build
+        > CMake: Run Without Debugging (to run the program)
+        > CMake: Run Tests (to run all the tests)
+    for a better overview of the tests, and for the programm to be developer friendly, you can 
+    go to the cmake extension, edit the launch or debug option to run either blackjack or
+    blackjack tests. Then you can just build, then run with the play button from cmake Tools
+    under the terminal/output window.
+
+
+
 ### run on mac
     cmake -S . -B build
     cmake --build build
@@ -7,3 +22,27 @@
     cmake -S . -B build -G "Visual Studio 17 2022"
     cmake --build build --config Debug
     .\build\Debug\blackjack.exe
+
+### tests bauen (Projektroot; BUILD_TESTING=ON schaltet GoogleTest ein)
+    cmake -S . -B build -DBUILD_TESTING=ON
+    # mac / Linux (Standard-Generator):
+    cmake --build build
+    # windows mit Visual Studio-Generator:
+    cmake --build build --config Debug
+
+### tests ausführen — mac / Linux (Makefile/Ninja; Binary heisst blackjack_tests)
+    ./build/blackjack_tests
+    # alternativ mit CTest:
+    cd build && ctest --output-on-failure && cd ..
+
+### tests ausführen — windows (nach Build mit Debug)
+    .\build\Debug\blackjack_tests.exe
+    # alternativ mit CTest:
+    cd build; ctest -C Debug --output-on-failure; cd ..
+
+### tests alles in einem (mac / Linux, bash — ein Block zum Kopieren)
+    cmake -S . -B build -DBUILD_TESTING=ON && cmake --build build && ./build/blackjack_tests
+
+### tests alles in einem (windows, PowerShell — ein Block zum Kopieren)
+    cmake -S . -B build -DBUILD_TESTING=ON -G "Visual Studio 17 2022"; cmake --build build --config Debug; .\build\Debug\blackjack_tests.exe
+

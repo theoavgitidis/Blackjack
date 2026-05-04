@@ -1,30 +1,51 @@
 {
-    // Use IntelliSense to learn about possible attributes.
-    // Hover to view descriptions of existing attributes.
-    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
-    "version": "0.2.0",
-    "configurations": [
-        {
-            "name": "Blackjack (Debug)",
-            "type": "cppvsdbg",
-            "request": "launch",
-            "program": "${workspaceFolder}\\build\\Debug\\blackjack.exe",
-            "args": [],
-            "stopAtEntry": false,
-            "cwd": "${workspaceFolder}",
-            "console": "integratedTerminal",
-            "preLaunchTask": "cmake-build-debug"
-        },
-        {
-            "name": "Blackjack (Release)",
-            "type": "cppvsdbg",
-            "request": "launch",
-            "program": "${workspaceFolder}\\build\\Release\\blackjack.exe",
-            "args": [],
-            "stopAtEntry": false,
-            "cwd": "${workspaceFolder}",
-            "console": "integratedTerminal",
-            "preLaunchTask": "cmake-build-release"
-        }
-    ]
+  // Play-Button: braucht C++-Extension (MSVC = cppvsdbg). Pfade build/Debug/*
+  // setzen Visual Studio-Generator voraus. Bei Ninja o. a.: unten
+  // "Blackjack — CMake Launch Target" nutzen oder in CMake Tools das Launch-Ziel waehlen.
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Blackjack (Debug)",
+      "type": "cppvsdbg",
+      "request": "launch",
+      "program": "${workspaceFolder}/build/Debug/blackjack.exe",
+      "args": [],
+      "cwd": "${workspaceFolder}",
+      "console": "integratedTerminal",
+      "stopAtEntry": false,
+      "preLaunchTask": "CMake: build blackjack"
+    },
+    {
+      "name": "Blackjack Tests (Debug)",
+      "type": "cppvsdbg",
+      "request": "launch",
+      "program": "${workspaceFolder}/build/Debug/blackjack_tests.exe",
+      "args": [],
+      "cwd": "${workspaceFolder}",
+      "console": "integratedTerminal",
+      "stopAtEntry": false,
+      "preLaunchTask": "CMake: build blackjack_tests"
+    },
+    {
+      "name": "Blackjack (Release)",
+      "type": "cppvsdbg",
+      "request": "launch",
+      "program": "${workspaceFolder}/build/Release/blackjack.exe",
+      "args": [],
+      "cwd": "${workspaceFolder}",
+      "console": "integratedTerminal",
+      "stopAtEntry": false,
+      "preLaunchTask": "cmake-build-release"
+    },
+    {
+      "name": "Blackjack — CMake Launch Target (Pfad aus Statusleiste)",
+      "type": "cppvsdbg",
+      "request": "launch",
+      "program": "${command:cmake.launchTargetPath}",
+      "args": [],
+      "cwd": "${workspaceFolder}",
+      "console": "integratedTerminal",
+      "stopAtEntry": false
+    }
+  ]
 }

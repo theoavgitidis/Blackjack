@@ -1,0 +1,64 @@
+Begleitdokument: Getestete Klassen (Blackjack-Konsolenspiel)
+===========================================================
+
+Gemaess Aufgabenstellung werden hier die drei Klassen genannt, fuer die
+alle oeffentlichen Methoden systematisch mit Aequivalenzklassen,
+typischen Werten und Grenzwerten abgedeckt werden:
+
+  1) Klasse Card
+     Oeffentliche API:
+       - Konstruktor Card(Suit, Rank)
+       - suit(), rank()
+       - baseValue()
+       - toString()
+       - toAsciiArt()
+       - backAsciiArt() [static]
+
+     Aequivalenzklassen (Auszug):
+       - Suit: {Kreuz, Pik, Herz, Karo}  (vier disjunkte Klassen)
+       - Rank numerisch 2-9: Grenze unten Zwei, Mitte Sechs/Sieben, oben Neun
+       - Rank Zehn: Grenzwert 10 Punkte (wie Bildkarten)
+       - Bildkarten Bube/Dame/Koenig: Aequivalenzklasse "Wert 10"
+       - Ass: Aequivalenzklasse "Basiswert 11" (Soft-Logik folgt in Hand)
+       - toString: Kombination Suit x Rank (Stichprobe + Vollstaendigkeit je Rang/Farbe)
+       - toAsciiArt: Breite 10 vs. andere Raenge (Rand links/rechts)
+
+     Datei: tests/CardTest.cpp
+
+  2) Klasse Deck
+     Oeffentliche API:
+       - Konstruktor Deck()
+       - shuffle()
+       - draw()
+       - size()
+
+     Aequivalenzklassen:
+       - size() nach Konstruktion: Grenzwert 52 (volles Deck)
+       - draw: gueltig solange size>0; Grenzfall letzte Karte (size wird 1->0)
+       - draw bei leerem Stapel: ungueltige Klasse -> Ausnahme erwartet
+       - shuffle: Invariante size==52; Inhalt multiset-gleich zum Standarddeck
+
+     Datei: tests/DeckTest.cpp
+
+  3) Klasse Hand
+     Oeffentliche API:
+       - clear(), addCard(), cards()
+       - score(), isBust(), isBlackjack()
+       - toString(bool hideSecondCard)
+
+     Aequivalenzklassen fuer score / Bust / Blackjack:
+       - Keine Karten: Summe 0, kein Bust, kein Blackjack
+       - Harte Summen ohne Ass: typische Mitte (z.B. 12-18), Grenze 21, Grenze 22 (Bust)
+       - Ein Ass: soft bis hard Umwandlung (Grenze total>21 loest Reduktion aus)
+       - Mehrere Asse: mehrstufige Reduktion (Rand: vier Asse, klassische 12 mit 2 Assen)
+       - Blackjack: genau zwei Karten und Summe 21 (Grenzfaelle: 3 Karten mit 21 ist kein BJ)
+       - toString hideSecondCard true/false mit 0,1,2+ Karten
+
+     Datei: tests/HandTest.cpp
+     Ergaenzend (weitere Aequivalenzfaelle / Zeilenvolumen): tests/HandEquivalenceExtendedTest.cpp
+
+Zusaetzlich (nicht Teil der obigen Pflicht-„drei Klassen“-Dokumentation,
+aber im selben Testbinary enthalten): tests fuer Participant, ConsoleUI,
+Game und Hilfs-IO.
+
+Testframework: GoogleTest (siehe CMakeLists.txt, Option BUILD_TESTING).
