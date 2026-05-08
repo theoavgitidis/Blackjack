@@ -7,33 +7,37 @@
 #include <vector>
 #include <sstream>
 
-static void printHandAscii(const Hand& hand, bool hideSecondCard) {
+namespace {
+
+void printHandAscii(const Hand& hand, bool hideSecondCard) {
     const auto& cards = hand.cards();
     if (cards.empty()) {
         std::cout << "(keine Karten)\n";
         return;
     }
 
-    std::vector<std::vector<std::string>> rendered;
-    rendered.reserve(cards.size());
+    std::vector<std::vector<std::string>> renderedCards;
+    renderedCards.reserve(cards.size());
 
     for (std::size_t i = 0; i < cards.size(); ++i) {
         if (hideSecondCard && i == 1) {
-            rendered.push_back(Card::backAsciiArt());
+            renderedCards.push_back(Card::backAsciiArt());
         } else {
-            rendered.push_back(cards[i].toAsciiArt());
+            renderedCards.push_back(cards[i].toAsciiArt());
         }
     }
 
-    const std::size_t height = rendered.front().size();
+    const std::size_t height = renderedCards.front().size();
     for (std::size_t row = 0; row < height; ++row) {
-        for (std::size_t ci = 0; ci < rendered.size(); ++ci) {
-            if (ci > 0) std::cout << " ";
-            std::cout << rendered[ci][row];
+        for (std::size_t cardIndex = 0; cardIndex < renderedCards.size(); ++cardIndex) {
+            if (cardIndex > 0) std::cout << " ";
+            std::cout << renderedCards[cardIndex][row];
         }
         std::cout << "\n";
     }
 }
+
+} // anonymous namespace
 
 void ConsoleUI::showWelcome() const {
     std::cout << "=====================================\n";
@@ -44,9 +48,9 @@ void ConsoleUI::showWelcome() const {
 bool ConsoleUI::promptStartGame() const {
     while (true) {
         std::cout << "Moechtest du eine Runde Blackjack starten? (j/n): ";
-        const auto in = toLowerAscii(readLineTrimmed());
-        if (in == "j" || in == "ja") return true;
-        if (in == "n" || in == "nein") return false;
+        const auto input = toLowerAscii(readLineTrimmed());
+        if (input == "j" || input == "ja") return true;
+        if (input == "n" || input == "nein") return false;
         std::cout << "Ungueltige Eingabe. Bitte 'j' oder 'n' eingeben.\n";
     }
 }
@@ -76,30 +80,33 @@ void ConsoleUI::showDealerStatus(const Dealer& dealer) const {
 }
 
 long long ConsoleUI::promptBetCents(long long bankrollCents) const {
-    // Einsatz wird als ganze EUR abgefragt und intern als Cent gespeichert.
-    // So bleibt die Auszahlung 1.5x (Blackjack) exakt in Cent darstellbar.
+    // Bet is requested in whole EUR and stored internally as cents.
+    // This ensures the 1.5x payout (Blackjack) can be exactly represented in cents.
+    constexpr long long kCentsPerEuro = 100;
+    constexpr int kBase10 = 10;
+
     while (true) {
         std::cout << "Dein Kontostand: " << formatMoney(bankrollCents) << "\n";
-        std::cout << "Einsatz in EUR waehlen (z.B. 10). Mindest 1, maximal " << (bankrollCents / 100) << ": ";
+        std::cout << "Einsatz in EUR waehlen (z.B. 10). Mindest 1, maximal " << (bankrollCents / kCentsPerEuro) << ": ";
 
-        const auto in = readLineTrimmed();
-        if (in.empty()) {
+        const auto input = readLineTrimmed();
+        if (input.empty()) {
             std::cout << "Ungueltige Eingabe. Bitte eine Zahl eingeben.\n";
             continue;
         }
 
         try {
             std::size_t pos = 0;
-            const long long eur = std::stoll(in, &pos, 10);
-            if (pos != in.size()) {
+            const long long euros = std::stoll(input, &pos, kBase10);
+            if (pos != input.size()) {
                 std::cout << "Ungueltige Eingabe. Bitte nur Zahlen eingeben.\n";
                 continue;
             }
-            if (eur <= 0) {
+            if (euros <= 0) {
                 std::cout << "Der Einsatz muss mindestens 1 EUR sein.\n";
                 continue;
             }
-            const long long betCents = eur * 100;
+            const long long betCents = euros * kCentsPerEuro;
             if (betCents > bankrollCents) {
                 std::cout << "Du hast nicht genug Guthaben fuer diesen Einsatz.\n";
                 continue;
@@ -116,24 +123,24 @@ void ConsoleUI::showBankroll(long long bankrollCents) const {
 }
 
 ConsoleUI::PlayerAction ConsoleUI::promptPlayerAction() const {
-    // Struktur bewusst als Enum, damit später leicht um Aktionen wie "Double Down" erweiterbar.
+    // The structure is intentionally an enum so it can be easily extended with actions like "Double Down" later.
     while (true) {
         std::cout << "Aktion waehlen: (1) Karte ziehen  (2) Passen  (3) Double Down : ";
-        const auto in = readLineTrimmed();
+        const auto input = readLineTrimmed();
 
-        if (in == "1") return PlayerAction::Hit;
-        if (in == "2") return PlayerAction::Stand;
-        if (in == "3") return PlayerAction::DoubleDown;
+        if (input == "1") return PlayerAction::Hit;
+        if (input == "2") return PlayerAction::Stand;
+        if (input == "3") return PlayerAction::DoubleDown;
 
-        // Auch Text-Eingaben tolerieren (REQ-F-014).
-        const auto lowered = toLowerAscii(in);
-        if (lowered == "hit" || lowered == "ziehen" || lowered == "karte" || lowered == "karte ziehen") {
+        // Tolerate text inputs as well (REQ-F-014).
+        const auto lowerInput = toLowerAscii(input);
+        if (lowerInput == "hit" || lowerInput == "ziehen" || lowerInput == "karte" || lowerInput == "karte ziehen") {
             return PlayerAction::Hit;
         }
-        if (lowered == "stand" || lowered == "passen") {
+        if (lowerInput == "stand" || lowerInput == "passen") {
             return PlayerAction::Stand;
         }
-        if (lowered == "double" || lowered == "doubledown" || lowered == "double down") {
+        if (lowerInput == "double" || lowerInput == "doubledown" || lowerInput == "double down") {
             return PlayerAction::DoubleDown;
         }
 
@@ -144,9 +151,9 @@ ConsoleUI::PlayerAction ConsoleUI::promptPlayerAction() const {
 bool ConsoleUI::promptPlayAgain() const {
     while (true) {
         std::cout << "Noch eine Runde spielen? (j/n): ";
-        const auto in = toLowerAscii(readLineTrimmed());
-        if (in == "j" || in == "ja") return true;
-        if (in == "n" || in == "nein") return false;
+        const auto input = toLowerAscii(readLineTrimmed());
+        if (input == "j" || input == "ja") return true;
+        if (input == "n" || input == "nein") return false;
         std::cout << "Ungueltige Eingabe. Bitte 'j' oder 'n' eingeben.\n";
     }
 }
@@ -169,21 +176,24 @@ std::string ConsoleUI::readLineTrimmed() {
     return line;
 }
 
-std::string ConsoleUI::toLowerAscii(std::string s) {
-    std::transform(s.begin(), s.end(), s.begin(), [](unsigned char c) {
+std::string ConsoleUI::toLowerAscii(std::string str) {
+    std::transform(str.begin(), str.end(), str.begin(), [](unsigned char c) {
         return static_cast<char>(std::tolower(c));
     });
-    return s;
+    return str;
 }
 
 std::string ConsoleUI::formatMoney(long long cents) {
-    const long long absCents = cents < 0 ? -cents : cents;
-    const long long eur = absCents / 100;
-    const long long rem = absCents % 100;
+    constexpr long long kCentsPerEuro = 100;
+    
+    const long long absoluteCents = cents < 0 ? -cents : cents;
+    const long long euros = absoluteCents / kCentsPerEuro;
+    const long long remainder = absoluteCents % kCentsPerEuro;
 
-    std::ostringstream oss;
-    if (cents < 0) oss << "-";
-    oss << eur << "." << std::setw(2) << std::setfill('0') << rem << " EUR";
-    return oss.str();
+    std::ostringstream moneyStream;
+    if (cents < 0) {
+        moneyStream << "-";
+    }
+    moneyStream << euros << "." << std::setw(2) << std::setfill('0') << remainder << " EUR";
+    return moneyStream.str();
 }
-

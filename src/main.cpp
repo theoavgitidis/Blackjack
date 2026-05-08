@@ -6,7 +6,7 @@
 
 int main() {
 #ifdef _WIN32
-    // UTF-8 Ausgabe für Windows-Konsole/Windows Terminal
+    // Set console output to UTF-8 for Windows console/Windows Terminal.
     SetConsoleOutputCP(CP_UTF8);
     SetConsoleCP(CP_UTF8);
 #endif
@@ -15,4 +15,3 @@ int main() {
     game.run();
     return 0;
 }
-

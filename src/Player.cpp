@@ -1,5 +1,10 @@
 #include "Player.h"
 
+namespace {
+// The bankroll cannot drop below zero.
+constexpr long long kMinimumBankroll = 0;
+} // anonymous namespace
+
 Player::Player() : Participant("Spieler") {}
 
 long long Player::bankrollCents() const noexcept { return bankrollCents_; }
@@ -10,6 +15,7 @@ bool Player::canAfford(long long betCents) const noexcept {
 
 void Player::adjustBankroll(long long deltaCents) noexcept {
     bankrollCents_ += deltaCents;
-    if (bankrollCents_ < 0) bankrollCents_ = 0;
+    if (bankrollCents_ < kMinimumBankroll) {
+        bankrollCents_ = kMinimumBankroll;
+    }
 }
-
