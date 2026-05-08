@@ -1,6 +1,6 @@
 Checkliste:
-- [ ] Kurze Beschreibung der Projektidee: ca. 2000 Zeichen (ohne Leerzeichen)
-- [ ] Anforderungen: Die Anforderungen an Ihre Software, passend zum eingereichten Bearbeitungsstand. Wählen Sie eines der möglichen Formate und bleiben Sie bei diesem. Die Liste der Anforderungen sollte möglichst vollständig sein. Es ist sinnvoll, diesen Abschnitt durch UML-Diagramme zu unterstützen.
+- [x] Kurze Beschreibung der Projektidee: ca. 2000 Zeichen (ohne Leerzeichen)
+- [x] Anforderungen: Die Anforderungen an Ihre Software, passend zum eingereichten Bearbeitungsstand. Wählen Sie eines der möglichen Formate und bleiben Sie bei diesem. Die Liste der Anforderungen sollte möglichst vollständig sein. Es ist sinnvoll, diesen Abschnitt durch UML-Diagramme zu unterstützen.
 - [ ] UML-Diagramme: ein Klassendiagramm (oder aufgeteilt auf mehrere Klassendiagramme) all Ihrer in C++ implementierten Klassen. 
 - [ ] Außerdem mindestens zwei weitere Diagramme, die keine Klassendiagramme sind. Diese dürfen, müssen aber nicht, Teil der Requirements oder Teil der Projektbeschreibung sein.
 - [ ] Falls Ihrem Projekt ein bekanntes Architekturmuster (oder mehrere) zugrunde liegt: mindestens 1500 Zeichen (ohne Leerzeichen) zum von Ihnen verwendeten Architekturmuster, dessen Anpassungen an Ihr Projekt und mit einer kurzen Begründung Ihrer Wahl. Falls es kein Architekturmuster gibt, anhand dessen Sie Ihr Projekt strukturiert haben: mindestens 1500 Zeichen (ohne Leerzeichen) zur Architektur Ihres Projekts. In beiden Fällen ist es sinnvoll, diesen Abschnitt durch ein Diagramm zu unterstützen. Dieses muss kein UML-Diagramm sein. 
