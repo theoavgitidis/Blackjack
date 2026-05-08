@@ -2,6 +2,13 @@
 
 #include <string>
 
+namespace {
+constexpr long long kCentsPerEuro = 100;
+constexpr long long kBlackjackPayoutNumerator = 150;
+constexpr long long kBlackjackPayoutDenominator = 100;
+constexpr long long kStandardWinMultiplier = 2;
+} // anonymous namespace
+
 Game::Game() = default;
 
 void Game::run() {
@@ -11,12 +18,12 @@ void Game::run() {
         return;
     }
 
-    // Ein Deck wird für mehrere Runden verwendet: nur einmal mischen,
-    // gezogene Karten bleiben aus dem Stapel entfernt.
+    // A deck is used for multiple rounds: shuffle only once,
+    // drawn cards remain removed from the deck.
     deck_.shuffle();
 
-    bool again = true;
-    while (again) {
+    bool playAnotherRound = true;
+    while (playAnotherRound) {
         if (player_.bankrollCents() <= 0) {
             ui_.showInfo("Du hast kein Guthaben mehr. Spiel beendet.");
             break;
@@ -27,14 +34,14 @@ void Game::run() {
             ui_.showInfo("Du hast kein Guthaben mehr. Spiel beendet.");
             break;
         }
-        again = ui_.promptPlayAgain();
+        playAnotherRound = ui_.promptPlayAgain();
     }
 
     ui_.showInfo("Danke fuers Spielen! Auf Wiedersehen.");
 }
 
 void Game::ensureDeckReady() {
-    // Sobald nur noch <= 10 Karten im Deck sind, neues Deck erzeugen und mischen.
+    // Create and shuffle a new deck as soon as there are <= reshuffleWhenAtOrBelow_ cards left.
     if (deck_.size() <= reshuffleWhenAtOrBelow_) {
         ui_.showInfo("\n--- Neues Deck wird gemischt ---");
         deck_ = Deck{};
@@ -48,8 +55,8 @@ void Game::playRound() {
     ensureDeckReady();
     ui_.showInfo("Karten im Deck: " + std::to_string(deck_.size()));
     long long betCents = ui_.promptBetCents(player_.bankrollCents());
-    player_.adjustBankroll(-betCents); // Einsatz wird zu Rundenbeginn abgezogen
-    ui_.showInfo("Einsatz gesetzt: " + std::to_string(betCents / 100) + " EUR");
+    player_.adjustBankroll(-betCents); // Deduct the bet at the beginning of the round
+    ui_.showInfo("Einsatz gesetzt: " + std::to_string(betCents / kCentsPerEuro) + " EUR");
 
     player_.clearHand();
     dealer_.clearHand();
@@ -92,7 +99,7 @@ void Game::playRound() {
 }
 
 void Game::initialDeal(Deck& deck) {
-    // Standard-Deal: abwechselnd jeweils 2 Karten.
+    // Standard deal: alternating 2 cards each.
     player_.takeCard(deck);
     dealer_.takeCard(deck);
     player_.takeCard(deck);
@@ -100,17 +107,17 @@ void Game::initialDeal(Deck& deck) {
 }
 
 bool Game::handleInitialBlackjack(long long betCents) {
-    const bool playerBJ = player_.hasBlackjack();
-    const bool dealerBJ = dealer_.hasBlackjack();
+    const bool hasPlayerBlackjack = player_.hasBlackjack();
+    const bool hasDealerBlackjack = dealer_.hasBlackjack();
 
-    if (!playerBJ && !dealerBJ) return false;
+    if (!hasPlayerBlackjack && !hasDealerBlackjack) return false;
 
     ui_.showHands(player_, dealer_, false);
 
-    if (playerBJ && dealerBJ) {
+    if (hasPlayerBlackjack && hasDealerBlackjack) {
         ui_.showRoundResult("Beide haben Blackjack. Unentschieden (Push).");
         applyPayout(betCents, true, RoundOutcome::Push);
-    } else if (playerBJ) {
+    } else if (hasPlayerBlackjack) {
         ui_.showRoundResult("Blackjack! Du gewinnst sofort.");
         applyPayout(betCents, true, RoundOutcome::PlayerWin);
     } else {
@@ -130,7 +137,7 @@ void Game::playerTurn(Deck& deck, long long& betCents) {
         }
 
         if (action == ConsoleUI::PlayerAction::DoubleDown) {
-            // Double Down: Einsatz verdoppeln, genau eine Karte ziehen, dann automatisch passen.
+            // Double Down: Double the bet, draw exactly one card, then stand automatically.
             if (!player_.canAfford(betCents)) {
                 ui_.showInfo("Double Down nicht moeglich: nicht genug Guthaben, um den Einsatz zu verdoppeln.");
                 continue;
@@ -149,7 +156,7 @@ void Game::playerTurn(Deck& deck, long long& betCents) {
         ui_.showHands(player_, dealer_, true);
 
         if (player_.isBust()) {
-            return; // Bust wird im Rundenablauf behandelt
+            return; // Bust is handled in the round sequence
         }
     }
 }
@@ -173,21 +180,21 @@ void Game::dealerTurn(Deck& deck) {
 Game::RoundOutcome Game::determineOutcome() const {
     if (dealer_.isBust()) return RoundOutcome::PlayerWin;
 
-    const int p = player_.score();
-    const int d = dealer_.score();
+    const int playerScore = player_.score();
+    const int dealerScore = dealer_.score();
 
-    if (p > d) return RoundOutcome::PlayerWin;
-    if (d > p) return RoundOutcome::DealerWin;
+    if (playerScore > dealerScore) return RoundOutcome::PlayerWin;
+    if (dealerScore > playerScore) return RoundOutcome::DealerWin;
     return RoundOutcome::Push;
 }
 
 void Game::applyPayout(long long betCents, bool playerBlackjack, RoundOutcome outcome) {
-    // Einsatz wurde bereits abgezogen.
-    // Regeln:
-    // - Blackjack (Spieler) gewinnt: Gewinn = 1.5x Einsatz, plus Einsatz zurueck
-    // - Normaler Sieg: Gewinn = 1x Einsatz, plus Einsatz zurueck
-    // - Push: Einsatz zurueck
-    // - Niederlage: nichts (Einsatz ist weg)
+    // The bet was already deducted.
+    // Rules:
+    // - Blackjack (Player) wins: Payout = 1.5x bet, plus the original bet back
+    // - Normal win: Payout = 1x bet, plus the original bet back
+    // - Push: Original bet back
+    // - Loss: Nothing (bet is gone)
     if (outcome == RoundOutcome::Push) {
         player_.adjustBankroll(betCents);
         return;
@@ -198,12 +205,11 @@ void Game::applyPayout(long long betCents, bool playerBlackjack, RoundOutcome ou
     }
 
     if (playerBlackjack) {
-        const long long payout = betCents + (betCents * 150) / 100; // 2.5x Einsatz als Auszahlung
+        const long long payout = betCents + (betCents * kBlackjackPayoutNumerator) / kBlackjackPayoutDenominator; // 2.5x bet as payout
         player_.adjustBankroll(payout);
         return;
     }
 
-    const long long payout = betCents * 2; // Einsatz + 1x Gewinn
+    const long long payout = betCents * kStandardWinMultiplier; // Bet + 1x win
     player_.adjustBankroll(payout);
 }
-

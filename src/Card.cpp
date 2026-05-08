@@ -20,18 +20,20 @@ int Card::baseValue() const noexcept {
     }
 }
 
-static std::string suitToGerman(Card::Suit s) {
-    switch (s) {
+namespace {
+
+std::string getSuitName(Card::Suit suit) {
+    switch (suit) {
         case Card::Suit::Kreuz: return "Kreuz";
         case Card::Suit::Pik:   return "Pik";
         case Card::Suit::Herz:  return "Herz";
         case Card::Suit::Karo:  return "Karo";
     }
-    throw std::logic_error("Unbekannte Kartenfarbe");
+    throw std::logic_error("Unknown card suit");
 }
 
-static std::string rankToGerman(Card::Rank r) {
-    switch (r) {
+std::string getRankName(Card::Rank rank) {
+    switch (rank) {
         case Card::Rank::Zwei:   return "2";
         case Card::Rank::Drei:   return "3";
         case Card::Rank::Vier:   return "4";
@@ -46,15 +48,11 @@ static std::string rankToGerman(Card::Rank r) {
         case Card::Rank::Koenig: return "Koenig";
         case Card::Rank::Ass:    return "Ass";
     }
-    throw std::logic_error("Unbekannter Kartenrang");
+    throw std::logic_error("Unknown card rank");
 }
 
-std::string Card::toString() const {
-    return rankToGerman(rank_) + " " + suitToGerman(suit_);
-}
-
-static std::string rankToShort(Card::Rank r) {
-    switch (r) {
+std::string getRankShortName(Card::Rank rank) {
+    switch (rank) {
         case Card::Rank::Zwei:   return "2";
         case Card::Rank::Drei:   return "3";
         case Card::Rank::Vier:   return "4";
@@ -69,70 +67,86 @@ static std::string rankToShort(Card::Rank r) {
         case Card::Rank::Koenig: return "K";
         case Card::Rank::Ass:    return "A";
     }
-    throw std::logic_error("Unbekannter Kartenrang");
+    throw std::logic_error("Unknown card rank");
 }
 
-static std::string suitToSymbol(Card::Suit s) {
-    // UTF-8 Suit-Symbole (setzt voraus, dass die Konsole auf UTF-8 steht).
-    switch (s) {
+std::string getSuitSymbol(Card::Suit suit) {
+    // UTF-8 suit symbols (assumes the console is set to UTF-8).
+    switch (suit) {
         case Card::Suit::Pik:   return "\u2660"; // ♠
         case Card::Suit::Herz:  return "\u2665"; // ♥
         case Card::Suit::Karo:  return "\u2666"; // ♦
         case Card::Suit::Kreuz: return "\u2663"; // ♣
     }
-    throw std::logic_error("Unbekannte Kartenfarbe");
+    throw std::logic_error("Unknown card suit");
 }
 
-static std::string padRight(const std::string& s, std::size_t width) {
-    if (s.size() >= width) return s;
-    return s + std::string(width - s.size(), ' ');
+std::string padRight(const std::string& str, std::size_t width) {
+    if (str.size() >= width) return str;
+    return str + std::string(width - str.size(), ' ');
 }
 
-static std::string padLeft(const std::string& s, std::size_t width) {
-    if (s.size() >= width) return s;
-    return std::string(width - s.size(), ' ') + s;
+std::string padLeft(const std::string& str, std::size_t width) {
+    if (str.size() >= width) return str;
+    return std::string(width - str.size(), ' ') + str;
 }
 
-static std::string repeatUtf8(const char* token, std::size_t count) {
+std::string repeatUtf8(const char* token, std::size_t count) {
     std::string out;
-    for (std::size_t i = 0; i < count; ++i) out += token;
+    for (std::size_t i = 0; i < count; ++i) {
+        out += token;
+    }
     return out;
 }
 
+} // anonymous namespace
+
+std::string Card::toString() const {
+    return getRankName(rank_) + " " + getSuitName(suit_);
+}
+
 std::vector<std::string> Card::toAsciiArt() const {
-    // Format (Breite 9, Höhe 5):
+    // Format (width 9, height 5):
     // ┌───────┐
     // │A      │
     // │   ♠   │
     // │      A│
     // └───────┘
-    const std::string r = rankToShort(rank_);
-    const std::string s = suitToSymbol(suit_);
+    const std::string shortRank = getRankShortName(rank_);
+    const std::string symbol = getSuitSymbol(suit_);
 
-    // Innenbreite ist 7.
-    const std::string left = padRight(r, 2);   // "A " oder "10"
-    const std::string right = padLeft(r, 2);   // " A" oder "10"
+    constexpr std::size_t kInnerWidth = 7;
+    constexpr std::size_t kPadding = 3;
+
+    const std::string leftAligned = padRight(shortRank, 2);   // "A " or "10"
+    const std::string rightAligned = padLeft(shortRank, 2);   // " A" or "10"
 
     std::vector<std::string> lines;
     lines.reserve(5);
-    const std::string top    = std::string("\u250C") + repeatUtf8("\u2500", 7) + "\u2510"; // ┌───────┐
-    const std::string bottom = std::string("\u2514") + repeatUtf8("\u2500", 7) + "\u2518"; // └───────┘
+    
+    const std::string topBorder = std::string("\u250C") + repeatUtf8("\u2500", kInnerWidth) + "\u2510";
+    const std::string bottomBorder = std::string("\u2514") + repeatUtf8("\u2500", kInnerWidth) + "\u2518";
 
-    lines.push_back(top);
-    lines.push_back(std::string("\u2502") + padRight(left, 7) + "\u2502"); // │
-    lines.push_back(std::string("\u2502") + std::string(3, ' ') + s + std::string(3, ' ') + "\u2502");
-    lines.push_back(std::string("\u2502") + padLeft(right, 7) + "\u2502");
-    lines.push_back(bottom);
+    lines.push_back(topBorder);
+    lines.push_back(std::string("\u2502") + padRight(leftAligned, kInnerWidth) + "\u2502");
+    lines.push_back(std::string("\u2502") + std::string(kPadding, ' ') + symbol + std::string(kPadding, ' ') + "\u2502");
+    lines.push_back(std::string("\u2502") + padLeft(rightAligned, kInnerWidth) + "\u2502");
+    lines.push_back(bottomBorder);
+    
     return lines;
 }
 
 std::vector<std::string> Card::backAsciiArt() {
+    constexpr std::size_t kInnerWidth = 7;
+    const std::string topBorder = std::string("\u250C") + repeatUtf8("\u2500", kInnerWidth) + "\u2510";
+    const std::string bottomBorder = std::string("\u2514") + repeatUtf8("\u2500", kInnerWidth) + "\u2518";
+    const std::string patternRow = std::string("\u2502") + "#######" + "\u2502";
+
     return {
-        std::string("\u250C") + repeatUtf8("\u2500", 7) + "\u2510",
-        std::string("\u2502") + "#######" + "\u2502",
-        std::string("\u2502") + "#######" + "\u2502",
-        std::string("\u2502") + "#######" + "\u2502",
-        std::string("\u2514") + repeatUtf8("\u2500", 7) + "\u2518",
+        topBorder,
+        patternRow,
+        patternRow,
+        patternRow,
+        bottomBorder
     };
 }
-

@@ -2,6 +2,12 @@
 
 #include <sstream>
 
+namespace {
+constexpr int kMaxValidScore = 21;
+constexpr int kAceValueDifference = 10;
+constexpr std::size_t kBlackjackCardCount = 2;
+} // anonymous namespace
+
 void Hand::clear() { cards_.clear(); }
 
 void Hand::addCard(const Card& card) { cards_.push_back(card); }
@@ -12,26 +18,26 @@ int Hand::score() const noexcept {
     int total = 0;
     int aces = 0;
 
-    for (const auto& c : cards_) {
-        total += c.baseValue();
-        if (c.rank() == Card::Rank::Ass) {
+    for (const auto& card : cards_) {
+        total += card.baseValue();
+        if (card.rank() == Card::Rank::Ass) {
             ++aces;
         }
     }
 
-    // Kernlogik Ass: Starte mit 11 und wandle so viele Asse wie nötig zu 1 um, um Bust zu vermeiden.
-    while (total > 21 && aces > 0) {
-        total -= 10; // 11 -> 1 entspricht -10
+    // Core Ace logic: Start with 11 and convert as many Aces as necessary to 1 to avoid a bust.
+    while (total > kMaxValidScore && aces > 0) {
+        total -= kAceValueDifference; // 11 -> 1 corresponds to -10
         --aces;
     }
 
     return total;
 }
 
-bool Hand::isBust() const noexcept { return score() > 21; }
+bool Hand::isBust() const noexcept { return score() > kMaxValidScore; }
 
 bool Hand::isBlackjack() const noexcept {
-    return cards_.size() == 2 && score() == 21;
+    return cards_.size() == kBlackjackCardCount && score() == kMaxValidScore;
 }
 
 std::string Hand::toString(bool hideSecondCard) const {
@@ -46,4 +52,3 @@ std::string Hand::toString(bool hideSecondCard) const {
     }
     return oss.str();
 }
-
