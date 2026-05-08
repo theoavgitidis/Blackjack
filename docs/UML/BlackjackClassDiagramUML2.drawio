@@ -1,0 +1,151 @@
+<mxfile host="app.diagrams.net" agent="Codex">
+  <diagram id="blackjack-class-diagram-uml2" name="Blackjack UML 2 Class Diagram">
+    <mxGraphModel dx="1377" dy="959" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1600" pageHeight="1000" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="title" parent="1" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;fontSize=24;fontStyle=1" value="Blackjack UML 2.0 Class Diagram" vertex="1">
+          <mxGeometry height="40" width="600" x="500" y="20" as="geometry" />
+        </mxCell>
+        <mxCell id="class_game" parent="1" style="rounded=0;whiteSpace=wrap;html=1;align=center;verticalAlign=top;spacing=8;fontSize=12;strokeColor=#1f1f1f;fillColor=#ffffff;" value="&lt;div&gt;&lt;b&gt;Game&lt;/b&gt;&lt;/div&gt;&lt;hr size=&quot;1&quot;&gt;&lt;div style=&quot;text-align:left&quot;&gt;- player_: Player&lt;br&gt;- dealer_: Dealer&lt;br&gt;- ui_: ConsoleUI&lt;br&gt;- deck_: Deck&lt;br&gt;- reshuffleWhenAtOrBelow_: std::size_t = 10 {static, readOnly}&lt;/div&gt;&lt;hr size=&quot;1&quot;&gt;&lt;div style=&quot;text-align:left&quot;&gt;+ Game()&lt;br&gt;+ run(): void&lt;br&gt;- ensureDeckReady(): void&lt;br&gt;- playRound(): void&lt;br&gt;- initialDeal(deck: Deck): void&lt;br&gt;- handleInitialBlackjack(betCents: long long): bool&lt;br&gt;- playerTurn(deck: Deck, betCents: long long): void&lt;br&gt;- dealerTurn(deck: Deck): void&lt;br&gt;- determineOutcome(): RoundOutcome&lt;br&gt;- applyPayout(betCents: long long, playerBlackjack: bool, outcome: RoundOutcome): void&lt;/div&gt;&lt;hr size=&quot;1&quot;&gt;&lt;div style=&quot;text-align:left&quot;&gt;&amp;laquo;enumeration&amp;raquo; RoundOutcome: PlayerWin, DealerWin, Push&lt;/div&gt;" vertex="1">
+          <mxGeometry height="310" width="450" x="560" y="80" as="geometry" />
+        </mxCell>
+        <mxCell id="class_console_ui" parent="1" style="rounded=0;whiteSpace=wrap;html=1;align=center;verticalAlign=top;spacing=8;fontSize=12;strokeColor=#1f1f1f;fillColor=#ffffff;" value="&lt;div&gt;&lt;b&gt;ConsoleUI&lt;/b&gt;&lt;/div&gt;&lt;hr size=&quot;1&quot;&gt;&lt;div style=&quot;text-align:left&quot;&gt;&amp;laquo;enumeration&amp;raquo; PlayerAction: Hit, Stand, DoubleDown&lt;/div&gt;&lt;hr size=&quot;1&quot;&gt;&lt;div style=&quot;text-align:left&quot;&gt;+ showWelcome(): void&lt;br&gt;+ promptStartGame(): bool&lt;br&gt;+ showHands(player: Player, dealer: Dealer, hideDealersSecondCard: bool): void&lt;br&gt;+ showPlayerStatus(player: Player): void&lt;br&gt;+ showDealerStatus(dealer: Dealer): void&lt;br&gt;+ promptBetCents(bankrollCents: long long): long long&lt;br&gt;+ showBankroll(bankrollCents: long long): void&lt;br&gt;+ promptPlayerAction(): PlayerAction&lt;br&gt;+ promptPlayAgain(): bool&lt;br&gt;+ showRoundResult(resultText: std::string): void&lt;br&gt;+ showInfo(text: std::string): void&lt;br&gt;- readLineTrimmed(): std::string {static}&lt;br&gt;- toLowerAscii(s: std::string): std::string {static}&lt;br&gt;- formatMoney(cents: long long): std::string {static}&lt;/div&gt;" vertex="1">
+          <mxGeometry height="300" width="420" x="1090" y="80" as="geometry" />
+        </mxCell>
+        <mxCell id="class_participant" parent="1" style="rounded=0;whiteSpace=wrap;html=1;align=center;verticalAlign=top;spacing=8;fontSize=12;strokeColor=#1f1f1f;fillColor=#ffffff;" value="&lt;div&gt;&lt;b&gt;Participant&lt;/b&gt;&lt;/div&gt;&lt;hr size=&quot;1&quot;&gt;&lt;div style=&quot;text-align:left&quot;&gt;- name_: std::string&lt;br&gt;- hand_: Hand&lt;/div&gt;&lt;hr size=&quot;1&quot;&gt;&lt;div style=&quot;text-align:left&quot;&gt;+ Participant(name: std::string)&lt;br&gt;+ ~Participant()&lt;br&gt;+ name(): std::string&lt;br&gt;+ hand(): Hand&lt;br&gt;+ clearHand(): void&lt;br&gt;+ takeCard(deck: Deck): void&lt;br&gt;+ score(): int&lt;br&gt;+ isBust(): bool&lt;br&gt;+ hasBlackjack(): bool&lt;/div&gt;" vertex="1">
+          <mxGeometry height="260" width="410" x="120" y="430" as="geometry" />
+        </mxCell>
+        <mxCell id="class_player" parent="1" style="rounded=0;whiteSpace=wrap;html=1;align=center;verticalAlign=top;spacing=8;fontSize=12;strokeColor=#1f1f1f;fillColor=#ffffff;" value="&lt;div&gt;&lt;b&gt;Player&lt;/b&gt;&lt;br&gt;&lt;span style=&quot;font-size:11px&quot;&gt;{final}&lt;/span&gt;&lt;/div&gt;&lt;hr size=&quot;1&quot;&gt;&lt;div style=&quot;text-align:left&quot;&gt;- bankrollCents_: long long = 50000&lt;/div&gt;&lt;hr size=&quot;1&quot;&gt;&lt;div style=&quot;text-align:left&quot;&gt;+ Player()&lt;br&gt;+ bankrollCents(): long long&lt;br&gt;+ canAfford(betCents: long long): bool&lt;br&gt;+ adjustBankroll(deltaCents: long long): void&lt;/div&gt;" vertex="1">
+          <mxGeometry height="150" width="300" x="80" y="790" as="geometry" />
+        </mxCell>
+        <mxCell id="class_dealer" parent="1" style="rounded=0;whiteSpace=wrap;html=1;align=center;verticalAlign=top;spacing=8;fontSize=12;strokeColor=#1f1f1f;fillColor=#ffffff;" value="&lt;div&gt;&lt;b&gt;Dealer&lt;/b&gt;&lt;br&gt;&lt;span style=&quot;font-size:11px&quot;&gt;{final}&lt;/span&gt;&lt;/div&gt;&lt;hr size=&quot;1&quot;&gt;&lt;div style=&quot;text-align:left&quot;&gt;+ Dealer()&lt;br&gt;+ shouldHit(): bool&lt;/div&gt;" vertex="1">
+          <mxGeometry height="110" width="280" x="430" y="790" as="geometry" />
+        </mxCell>
+        <mxCell id="class_hand" parent="1" style="rounded=0;whiteSpace=wrap;html=1;align=center;verticalAlign=top;spacing=8;fontSize=12;strokeColor=#1f1f1f;fillColor=#ffffff;" value="&lt;div&gt;&lt;b&gt;Hand&lt;/b&gt;&lt;/div&gt;&lt;hr size=&quot;1&quot;&gt;&lt;div style=&quot;text-align:left&quot;&gt;- cards_: std::vector&amp;lt;Card&amp;gt;&lt;/div&gt;&lt;hr size=&quot;1&quot;&gt;&lt;div style=&quot;text-align:left&quot;&gt;+ clear(): void&lt;br&gt;+ addCard(card: Card): void&lt;br&gt;+ cards(): std::vector&amp;lt;Card&amp;gt;&lt;br&gt;+ score(): int&lt;br&gt;+ isBust(): bool&lt;br&gt;+ isBlackjack(): bool&lt;br&gt;+ toString(hideSecondCard: bool): std::string&lt;/div&gt;" vertex="1">
+          <mxGeometry height="230" width="360" x="700" y="430" as="geometry" />
+        </mxCell>
+        <mxCell id="class_deck" parent="1" style="rounded=0;whiteSpace=wrap;html=1;align=center;verticalAlign=top;spacing=8;fontSize=12;strokeColor=#1f1f1f;fillColor=#ffffff;" value="&lt;div&gt;&lt;b&gt;Deck&lt;/b&gt;&lt;/div&gt;&lt;hr size=&quot;1&quot;&gt;&lt;div style=&quot;text-align:left&quot;&gt;- cards_: std::vector&amp;lt;Card&amp;gt;&lt;br&gt;- rng_: std::mt19937&lt;/div&gt;&lt;hr size=&quot;1&quot;&gt;&lt;div style=&quot;text-align:left&quot;&gt;+ Deck()&lt;br&gt;+ shuffle(): void&lt;br&gt;+ draw(): Card&lt;br&gt;+ size(): std::size_t&lt;/div&gt;" vertex="1">
+          <mxGeometry height="170" width="300" x="1180" y="470" as="geometry" />
+        </mxCell>
+        <mxCell id="class_card" parent="1" style="rounded=0;whiteSpace=wrap;html=1;align=center;verticalAlign=top;spacing=8;fontSize=12;strokeColor=#1f1f1f;fillColor=#ffffff;" value="&lt;div&gt;&lt;b&gt;Card&lt;/b&gt;&lt;/div&gt;&lt;hr size=&quot;1&quot;&gt;&lt;div style=&quot;text-align:left&quot;&gt;- suit_: Suit&lt;br&gt;- rank_: Rank&lt;/div&gt;&lt;hr size=&quot;1&quot;&gt;&lt;div style=&quot;text-align:left&quot;&gt;+ Card(suit: Suit, rank: Rank)&lt;br&gt;+ suit(): Suit&lt;br&gt;+ rank(): Rank&lt;br&gt;+ baseValue(): int&lt;br&gt;+ toString(): std::string&lt;br&gt;+ toAsciiArt(): std::vector&amp;lt;std::string&amp;gt;&lt;br&gt;+ backAsciiArt(): std::vector&amp;lt;std::string&amp;gt; {static}&lt;/div&gt;&lt;hr size=&quot;1&quot;&gt;&lt;div style=&quot;text-align:left&quot;&gt;&amp;laquo;enumeration&amp;raquo; Suit: Clubs, Spades, Hearts, Diamonds&lt;br&gt;&amp;laquo;enumeration&amp;raquo; Rank: Two, Three, Four, Five, Six, Seven, Eight, Nine, Ten, Jack, Queen, King, Ace&lt;/div&gt;" vertex="1">
+          <mxGeometry height="240" width="380" x="870" y="740" as="geometry" />
+        </mxCell>
+        <mxCell id="note_scope" parent="1" style="shape=note;whiteSpace=wrap;html=1;backgroundOutline=1;darkOpacity=0.05;fontSize=12;align=left;spacing=8;strokeColor=#666666;fillColor=#ffffff;" value="Strukturelle Beziehungen werden explizit angezeigt. Parameter Abhängigkeiten sind in den Operationssignaturen sichtbar.&amp;nbsp;" vertex="1">
+          <mxGeometry height="70" width="230" x="130" y="170" as="geometry" />
+        </mxCell>
+        <mxCell id="legend" parent="1" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=middle;spacing=8;fontSize=12;strokeColor=#666666;fillColor=#ffffff;" value="&lt;div style=&quot;text-align:left&quot;&gt;&lt;b&gt;Legend&lt;/b&gt;&lt;br&gt;Ausgefülltes Diamant: Komposition&lt;/div&gt;&lt;div style=&quot;text-align:left&quot;&gt;Leeres Pfeil: Generalisation&lt;br&gt;+ public, - private&lt;/div&gt;" vertex="1">
+          <mxGeometry height="90" width="260" x="1320" y="760" as="geometry" />
+        </mxCell>
+        <mxCell id="edge_player_participant" edge="1" parent="1" source="class_player" style="endArrow=block;endFill=0;html=1;rounded=0;strokeWidth=1.4;edgeStyle=orthogonalEdgeStyle;orthogonalLoop=1;jettySize=auto;" target="class_participant" value="">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="230" y="735" />
+              <mxPoint x="260" y="735" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge_dealer_participant" edge="1" parent="1" source="class_dealer" style="endArrow=block;endFill=0;html=1;rounded=0;strokeWidth=1.4;edgeStyle=orthogonalEdgeStyle;orthogonalLoop=1;jettySize=auto;" target="class_participant" value="">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="570" y="730" />
+              <mxPoint x="460" y="730" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge_participant_hand" edge="1" parent="1" source="class_participant" style="startArrow=diamond;startFill=1;endArrow=none;html=1;rounded=0;strokeWidth=1.4;edgeStyle=orthogonalEdgeStyle;orthogonalLoop=1;jettySize=auto;" target="class_hand" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="label_participant_hand" connectable="0" parent="edge_participant_hand" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=12;" value="1" vertex="1">
+          <mxGeometry relative="1" x="0.82" y="-1" as="geometry">
+            <mxPoint x="-10" y="-10" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge_hand_card" edge="1" parent="1" source="class_hand" style="startArrow=diamond;startFill=1;endArrow=none;html=1;rounded=0;strokeWidth=1.4;edgeStyle=orthogonalEdgeStyle;orthogonalLoop=1;jettySize=auto;" target="class_card" value="">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="790" y="700" />
+              <mxPoint x="940" y="700" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="label_hand_card" connectable="0" parent="edge_hand_card" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=12;" value="0..*" vertex="1">
+          <mxGeometry relative="1" x="0.84" y="-1" as="geometry">
+            <mxPoint x="-20" y="-10" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge_deck_card" edge="1" parent="1" source="class_deck" style="startArrow=diamond;startFill=1;endArrow=none;html=1;rounded=0;strokeWidth=1.4;edgeStyle=orthogonalEdgeStyle;orthogonalLoop=1;jettySize=auto;" target="class_card" value="">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1340" y="700" />
+              <mxPoint x="1190" y="700" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="label_deck_card" connectable="0" parent="edge_deck_card" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=12;" value="0..52" vertex="1">
+          <mxGeometry relative="1" x="0.84" y="-1" as="geometry">
+            <mxPoint x="10" y="-12" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge_game_console_ui" edge="1" parent="1" style="startArrow=diamond;startFill=1;endArrow=none;html=1;rounded=0;strokeWidth=1.4;edgeStyle=orthogonalEdgeStyle;orthogonalLoop=1;jettySize=auto;" value="">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1010" y="245.0114942528736" as="sourcePoint" />
+            <mxPoint x="1090" y="240.00000000000006" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="label_game_console_ui" connectable="0" parent="edge_game_console_ui" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=12;" value="1" vertex="1">
+          <mxGeometry relative="1" x="0.86" y="-1" as="geometry">
+            <mxPoint x="-10" y="-10" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge_game_deck" edge="1" parent="1" source="class_game" style="startArrow=diamond;startFill=1;endArrow=none;html=1;rounded=0;strokeWidth=1.4;edgeStyle=orthogonalEdgeStyle;orthogonalLoop=1;jettySize=auto;" target="class_deck" value="">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1040" y="230" />
+              <mxPoint x="1040" y="400" />
+              <mxPoint x="1330" y="400" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="label_game_deck" connectable="0" parent="edge_game_deck" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=12;" value="1" vertex="1">
+          <mxGeometry relative="1" x="0.88" y="-1" as="geometry">
+            <mxPoint x="-10" y="-12" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge_game_player" edge="1" parent="1" style="startArrow=diamond;startFill=1;endArrow=none;html=1;rounded=0;strokeWidth=1.4;edgeStyle=orthogonalEdgeStyle;orthogonalLoop=1;jettySize=auto;" value="">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="40" y="410" />
+              <mxPoint x="40" y="765" />
+              <mxPoint x="230" y="765" />
+            </Array>
+            <mxPoint x="785" y="390" as="sourcePoint" />
+            <mxPoint x="230.0769230769231" y="789.9999999999998" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="label_game_player" connectable="0" parent="edge_game_player" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=12;" value="1" vertex="1">
+          <mxGeometry relative="1" x="0.88" y="-1" as="geometry">
+            <mxPoint x="-10" y="-12" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge_game_dealer" edge="1" parent="1" source="class_game" style="startArrow=diamond;startFill=1;endArrow=none;html=1;rounded=0;strokeWidth=1.4;edgeStyle=orthogonalEdgeStyle;orthogonalLoop=1;jettySize=auto;exitX=0.5;exitY=1;exitDx=0;exitDy=0;" value="">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="785" y="410" />
+              <mxPoint x="1090" y="410" />
+              <mxPoint x="1090" y="725" />
+              <mxPoint x="570" y="725" />
+            </Array>
+            <mxPoint x="784.92" y="390" as="sourcePoint" />
+            <mxPoint x="569.9969230769228" y="789.9999999999998" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="label_game_dealer" connectable="0" parent="edge_game_dealer" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=12;" value="1" vertex="1">
+          <mxGeometry relative="1" x="0.88" y="-1" as="geometry">
+            <mxPoint x="-10" y="-12" as="offset" />
+          </mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

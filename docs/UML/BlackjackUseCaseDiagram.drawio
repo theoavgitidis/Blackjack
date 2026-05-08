@@ -1,0 +1,121 @@
+<mxfile host="app.diagrams.net" agent="Codex">
+  <diagram id="blackjack-use-case-diagram" name="Blackjack Use Case">
+    <mxGraphModel dx="1015" dy="706" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="827" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="title" parent="1" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;fontSize=22;fontStyle=1" value="Blackjack Use Case Diagram" vertex="1">
+          <mxGeometry height="40" width="400" x="384" y="20" as="geometry" />
+        </mxCell>
+        <mxCell id="system" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#333333;fontSize=16;fontStyle=1;verticalAlign=top;spacingTop=12;" value="Blackjack Console Game" vertex="1">
+          <mxGeometry height="640" width="800" x="250" y="80" as="geometry" />
+        </mxCell>
+        <mxCell id="actor_player" parent="1" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;fontSize=14;" value="Player" vertex="1">
+          <mxGeometry height="90" width="50" x="95" y="330" as="geometry" />
+        </mxCell>
+        <mxCell id="uc_start_game" parent="1" style="ellipse;whiteSpace=wrap;html=1;fontSize=14;" value="Start Game" vertex="1">
+          <mxGeometry height="62" width="165" x="330" y="125" as="geometry" />
+        </mxCell>
+        <mxCell id="uc_play_round" parent="1" style="ellipse;whiteSpace=wrap;html=1;fontSize=14;fontStyle=1;" value="Play Blackjack Round" vertex="1">
+          <mxGeometry height="70" width="190" x="540" y="292" as="geometry" />
+        </mxCell>
+        <mxCell id="uc_place_bet" parent="1" style="ellipse;whiteSpace=wrap;html=1;fontSize=14;" value="Place Bet" vertex="1">
+          <mxGeometry height="62" width="165" x="330" y="230" as="geometry" />
+        </mxCell>
+        <mxCell id="uc_show_hands" parent="1" style="ellipse;whiteSpace=wrap;html=1;fontSize=14;" value="Show Cards and Score" vertex="1">
+          <mxGeometry height="62" width="210" x="735" y="230" as="geometry" />
+        </mxCell>
+        <mxCell id="uc_choose_action" parent="1" style="ellipse;whiteSpace=wrap;html=1;fontSize=14;" value="Choose Player Action" vertex="1">
+          <mxGeometry height="62" width="185" x="330" y="380" as="geometry" />
+        </mxCell>
+        <mxCell id="uc_hit" parent="1" style="ellipse;whiteSpace=wrap;html=1;fontSize=14;" value="Hit" vertex="1">
+          <mxGeometry height="56" width="150" x="275" y="500" as="geometry" />
+        </mxCell>
+        <mxCell id="uc_stand" parent="1" style="ellipse;whiteSpace=wrap;html=1;fontSize=14;" value="Stand" vertex="1">
+          <mxGeometry height="56" width="150" x="455" y="500" as="geometry" />
+        </mxCell>
+        <mxCell id="uc_double" parent="1" style="ellipse;whiteSpace=wrap;html=1;fontSize=14;" value="Double Down" vertex="1">
+          <mxGeometry height="56" width="175" x="635" y="500" as="geometry" />
+        </mxCell>
+        <mxCell id="uc_dealer_turn" parent="1" style="ellipse;whiteSpace=wrap;html=1;fontSize=14;" value="Execute Dealer Turn Automatically" vertex="1">
+          <mxGeometry height="62" width="210" x="735" y="380" as="geometry" />
+        </mxCell>
+        <mxCell id="uc_determine_result" parent="1" style="ellipse;whiteSpace=wrap;html=1;fontSize=14;" value="Determine Result" vertex="1">
+          <mxGeometry height="62" width="185" x="500" y="615" as="geometry" />
+        </mxCell>
+        <mxCell id="uc_show_result" parent="1" style="ellipse;whiteSpace=wrap;html=1;fontSize=14;" value="Show Result and Bankroll" vertex="1">
+          <mxGeometry height="62" width="210" x="770" y="615" as="geometry" />
+        </mxCell>
+        <mxCell id="uc_play_again" parent="1" style="ellipse;whiteSpace=wrap;html=1;fontSize=14;" value="Start New Round or End Game" vertex="1">
+          <mxGeometry height="62" width="220" x="540" y="125" as="geometry" />
+        </mxCell>
+        <mxCell id="uc_invalid_input" parent="1" style="ellipse;whiteSpace=wrap;html=1;fontSize=14;" value="Handle Invalid Input" vertex="1">
+          <mxGeometry height="62" width="205" x="790" y="125" as="geometry" />
+        </mxCell>
+        <mxCell id="note_internal" parent="1" style="shape=note;whiteSpace=wrap;html=1;backgroundOutline=1;darkOpacity=0.05;fontSize=12;align=left;spacing=8;" value="Note: The dealer is not an external actor, but part of the system logic." vertex="1">
+          <mxGeometry height="105" width="165" x="65" y="475.5" as="geometry" />
+        </mxCell>
+        <mxCell id="edge_actor_start" edge="1" parent="1" source="actor_player" style="endArrow=none;html=1;rounded=0;strokeWidth=1.5;" target="uc_start_game" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge_actor_round" edge="1" parent="1" source="actor_player" style="endArrow=none;html=1;rounded=0;strokeWidth=1.5;" target="uc_play_round" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge_actor_action" edge="1" parent="1" source="actor_player" style="endArrow=none;html=1;rounded=0;strokeWidth=1.5;" target="uc_choose_action" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge_actor_play_again" edge="1" parent="1" source="actor_player" style="endArrow=none;html=1;rounded=0;strokeWidth=1.5;" target="uc_play_again" value="">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="340" y="230" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge_round_bet" edge="1" parent="1" source="uc_play_round" style="endArrow=open;endFill=0;dashed=1;html=1;rounded=0;fontSize=12;" target="uc_place_bet" value="&amp;laquo;include&amp;raquo;">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge_round_show" edge="1" parent="1" source="uc_play_round" style="endArrow=open;endFill=0;dashed=1;html=1;rounded=0;fontSize=12;" target="uc_show_hands" value="&amp;laquo;include&amp;raquo;">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge_round_action" edge="1" parent="1" source="uc_play_round" style="endArrow=open;endFill=0;dashed=1;html=1;rounded=0;fontSize=12;" target="uc_choose_action" value="&amp;laquo;include&amp;raquo;">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge_round_dealer" edge="1" parent="1" source="uc_play_round" style="endArrow=open;endFill=0;dashed=1;html=1;rounded=0;fontSize=12;" target="uc_dealer_turn" value="&amp;laquo;include&amp;raquo;">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge_round_result" edge="1" parent="1" source="uc_play_round" style="endArrow=open;endFill=0;dashed=1;html=1;rounded=0;fontSize=12;" target="uc_determine_result" value="&amp;laquo;include&amp;raquo;">
+          <mxGeometry relative="1" x="-0.5386" y="-3" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge_result_show" edge="1" parent="1" source="uc_determine_result" style="endArrow=open;endFill=0;dashed=1;html=1;rounded=0;fontSize=12;" target="uc_show_result" value="&amp;laquo;include&amp;raquo;">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge_action_hit" edge="1" parent="1" source="uc_hit" style="endArrow=open;endFill=0;dashed=1;html=1;rounded=0;fontSize=12;" target="uc_choose_action" value="&amp;laquo;extend&amp;raquo;">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge_action_stand" edge="1" parent="1" source="uc_stand" style="endArrow=open;endFill=0;dashed=1;html=1;rounded=0;fontSize=12;" target="uc_choose_action" value="&amp;laquo;extend&amp;raquo;">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge_action_double" edge="1" parent="1" source="uc_double" style="endArrow=open;endFill=0;dashed=1;html=1;rounded=0;fontSize=12;" target="uc_choose_action" value="&amp;laquo;extend&amp;raquo;">
+          <mxGeometry relative="1" x="0.2726" y="-1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge_invalid_bet" edge="1" parent="1" source="uc_invalid_input" style="endArrow=open;endFill=0;dashed=1;html=1;rounded=0;fontSize=12;" target="uc_place_bet" value="&amp;laquo;extend&amp;raquo;">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge_invalid_action" edge="1" parent="1" source="uc_invalid_input" style="endArrow=open;endFill=0;dashed=1;html=1;rounded=0;fontSize=12;" target="uc_choose_action" value="&amp;laquo;extend&amp;raquo;">
+          <mxGeometry relative="1" x="-0.7621" y="3" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge_start_round" edge="1" parent="1" source="uc_start_game" style="endArrow=open;endFill=0;dashed=1;html=1;rounded=0;fontSize=12;" target="uc_play_round" value="&amp;laquo;include&amp;raquo;">
+          <mxGeometry relative="1" x="0.4504" y="-7" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
